@@ -50,16 +50,18 @@
 - 客户端 S2C 结构化包 → 占位组件：`名字 + [图标占位6空格(颜色编码0x010000|id<<8|idx)] + [物品名]`
 - **两种占位条目**（ShowcaseMessageHandler.ChatEntry）：ItemEntry（[i] 平铺图标）与
   ContainerEntry（[inv]/[ec]/[c]/[pack] → 可点击入口，图标 + "[背包 xN]"）
-- **点击入口打开原生箱子界面**：ChestMenu（GENERIC_9x1~9x6 按行数）+ ContainerScreen（1.20.1 官方映射名，
-  不是 ChestScreen！），自定义 ReadOnlyChestMenu 覆写 clicked/quickMoveStack 为空 → 完全只读且不发包；
-  渲染/玩家背包栏全部原版。参考用户 Bukkit 插件 HBetterChat 的"存快照+点击查看"交互；
-  配置开关 clickViewGui（默认 true，false=平铺旧行为）。数据已在 SHOWCASE_MESSAGE 里，纯客户端实现
+- **点击入口打开原生箱子界面**（SnapshotViewerScreen extends ContainerScreen；1.20.1 官方映射名是
+  ContainerScreen 不是 ChestScreen！），ReadOnlyChestMenu 覆写 clicked/quickMoveStack 为空 → 完全只读且不发包；
+  **@IPNIgnore**（org.anti_ad.mc.ipn.api；compileOnly org.anti_ad.mc:IPN-forge-1.20:1.10.9 @ maven.ipn-mod.org）
+  禁用 Inventory Profiles Next 注入
+- **GUI 布局（参照 HBetterChat 插件）**：[inv] → 9x6（顶两行装饰玻璃板+玩家头颅（SkullOwner NBT）+
+  盔甲/副手行 + 主背包27格 + 快捷栏9格）；[ec] → 9x5（装饰+头颅+27格）；[pack]/[i]容器 → 平铺+分页（左右键+按钮）
 - **[i] 命中容器展开的组（HAND 组带 title）也作为入口**，点击查看背包内部
-- 入口图标：inv=Items.CHEST、ec=Items.ENDER_CHEST（UI 按钮图标），pack/curios=组内第一个真实物品
-- 物品数据存 LRU 缓存（id→List<ChatEntry>，客户端解码真实 ItemStack）
-- Mixin 4 处：render HEAD（帧重置）、行 drawString Redirect（扫描占位 run 画图标；文字与图标整体下移
-  floorDiv(extraLineSpacing,2) 实现行块内垂直居中）、ChatScreen render TAIL（悬停 Tooltip）+
-  ChatScreen mouseClicked HEAD（入口点击）+ getLineHeight RETURN（行距，默认+7 → 行步进 16px）
+- **宏别名**：MacroType 支持 token 数组，PACK 别名 "[p]"；解析器按主 token 长度降序匹配
+- **限额**：平铺物品 maxItemsPerMessage=54；**容器内部展开独立限额 maxContainerContents=108**
+  （depth>=1 在 MessageValidator 单独计数，工厂不消耗消息预算）——解决大背包只显示 54 格
+- 行距：extraLineSpacing 默认 16（行步进 9+16=25px）；文字/图标整体**上移** floorDiv(extra,2)（用户要求向上偏移）
+- **注意**：用户本地 config/itemshowcase-client.json 里已有旧值会覆盖新默认值（合并加载），调默认值后要提醒用户删旧字段
 - 物品名优先用客户端解码 ItemStack 的 hover name（服务端 plainName 仅回退）
 - 1.20.1 的 mouseScrolled 是 3 参（4 参是 1.20.2+）
 
