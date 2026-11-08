@@ -107,8 +107,10 @@ public final class SnapshotViewerScreen extends ContainerScreen {
             int index = item.slotIndex();
             switch (item.source()) {
                 case ARMOR -> {
+                    // 原版 Inventory.armor 顺序为 0=脚、1=腿、2=胸、3=头（自下而上），
+                    // GUI 装饰行 4-7 从左到右是 头/胸/腿/脚 → 映射反转
                     if (index >= 0 && index < 4) {
-                        slots[0][4 + index] = stack;
+                        slots[0][7 - index] = stack;
                     }
                 }
                 case OFFHAND -> slots[0][8] = stack;
