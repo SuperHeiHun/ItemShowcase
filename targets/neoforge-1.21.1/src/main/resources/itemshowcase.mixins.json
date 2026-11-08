@@ -1,1 +1,1 @@
-{"required": true, "minVersion": "0.8", "package": "com.heihun.Itemshowcase.neoforge1211.mixin", "compatibilityLevel": "JAVA_21", "client": ["ChatComponentMixin", "ChatScreenMixin"], "injectors": {"defaultRequire": 1}}
+{"required": true, "minVersion": "0.8", "package": "com.heihun.Itemshowcase.neoforge1211.mixin", "compatibilityLevel": "JAVA_21", "client": ["ChatComponentMixin", "ChatLineIconMixin", "ChatScreenMixin"], "injectors": {"defaultRequire": 1}}
