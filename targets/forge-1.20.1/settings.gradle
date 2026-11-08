@@ -1,0 +1,23 @@
+pluginManagement {
+    repositories {
+        gradlePluginPortal()
+        maven {
+            name = 'MinecraftForge'
+            url = 'https://maven.minecraftforge.net/'
+        }
+    }
+}
+
+plugins {
+    // 工具链自动探测/下载（本地已安装 zulu 8/17/21，正常情况下不会触发下载）
+    id 'org.gradle.toolchains.foojay-resolver-convention' version '0.8.0'
+}
+
+rootProject.name = 'itemshowcase-forge-1.20.1'
+
+// Composite Build：以源码方式复用 common-core，禁止复制核心实现
+includeBuild('../../common-core') {
+    dependencySubstitution {
+        substitute module('com.heihun.Itemshowcase:itemshowcase-common-core') using project(':')
+    }
+}

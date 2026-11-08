@@ -1,0 +1,29 @@
+modLoader="javafml"
+loaderVersion="[47,)"
+license="MIT"
+issueTrackerURL=""
+
+[[mods]]
+modId="itemshowcase"
+version="${file.jarVersion}"
+displayName="ItemShowcase"
+displayURL=""
+logoFile="itemshowcase_logo.png"
+authors="heihun"
+description='''聊天物品展示。使用 [i] [inv] [ec] [c] [pack] 宏或 Ctrl+Enter 在聊天中展示真实物品图标。
+
+Chat item showcase: display real item icons in chat with [i] [inv] [ec] [c] [pack] macros or Ctrl+Enter.'''
+
+[[dependencies.itemshowcase]]
+    modId="forge"
+    mandatory=true
+    versionRange="[47,)"
+    ordering="NONE"
+    side="BOTH"
+
+[[dependencies.itemshowcase]]
+    modId="minecraft"
+    mandatory=true
+    versionRange="[1.20.1,1.21)"
+    ordering="NONE"
+    side="BOTH"

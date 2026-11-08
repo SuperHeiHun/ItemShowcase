@@ -1,0 +1,52 @@
+// ItemShowcase common-core：纯 Java 库，零 Minecraft 依赖。
+// 编译为 Java 8 字节码，保证所有目标（1.16.5 Java 8 ~ 1.21.1 Java 21）都能以 Composite Build 方式消费。
+// 因此本构建必须兼容较老的 Gradle（7.6+），不得使用新版 Gradle 专属语法。
+plugins {
+    id 'java-library'
+}
+
+group = 'com.heihun.Itemshowcase'
+version = '1.0.0'
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(21)
+    }
+}
+
+compileJava {
+    options.encoding = 'UTF-8'
+    // 目标字节码：Java 8（1.16.5 必须运行在 Java 8 上）
+    options.release = 8
+}
+
+compileTestJava {
+    options.encoding = 'UTF-8'
+    options.release = 21
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    // Gson：Minecraft 所有目标版本都自带（1.16.5 为 2.8.0），
+    // 这里按 2.8.0 编译，只使用所有目标版本都存在的 API。
+    api 'com.google.code.gson:gson:2.8.0'
+
+    testImplementation platform('org.junit:junit-bom:5.10.2')
+    testImplementation 'org.junit.jupiter:junit-jupiter'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+}
+
+test {
+    useJUnitPlatform()
+    testLogging {
+        events 'passed', 'skipped', 'failed'
+        showStandardStreams = false
+    }
+}
+
+tasks.withType(JavaCompile).configureEach {
+    options.compilerArgs << '-Xlint:deprecation'
+}

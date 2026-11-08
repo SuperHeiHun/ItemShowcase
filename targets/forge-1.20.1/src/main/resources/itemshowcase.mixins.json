@@ -1,0 +1,1 @@
+{"required": true, "minVersion": "0.8", "package": "com.heihun.Itemshowcase.forge1201.mixin", "compatibilityLevel": "JAVA_17", "refmap": "itemshowcase-forge-1.20.1.refmap.json", "mixins": [], "client": ["ChatComponentMixin", "ChatScreenMixin"], "injectors": {"defaultRequire": 1}}
