@@ -44,22 +44,39 @@ public final class MessageValidator {
 
     public static ValidationResult validate(ShowcaseMessage message, ShowcaseLimits limits) {
         List<String> violations = new ArrayList<>();
-        int itemCount = 0;
+        int directItemCount = 0;   // 玩家直接展示的物品（受 maxItemsPerMessage）
+        int nestedItemCount = 0;   // 容器内部展开的物品（受 maxContainerContents）
         int totalBytes = 0;
 
         for (ShowcaseSegment segment : message.segments()) {
             if (segment instanceof ItemSegment) {
-                itemCount += inspectItem((ItemSegment) segment, limits, violations);
+                directItemCount += inspectItem((ItemSegment) segment, limits, violations);
             } else if (segment instanceof ItemGroupSegment) {
                 ItemGroupSegment group = (ItemGroupSegment) segment;
                 for (ItemSegment item : group.items()) {
-                    itemCount += inspectItem(item, limits, violations);
+                    if (item.depth() > 0) {
+                        continue; // 容器内部物品在第二遍统计
+                    }
+                    directItemCount += inspectItem(item, limits, violations);
+                }
+            }
+        }
+        // 容器内部物品（depth >= 1）单独限额（上限更高，支持大背包）
+        for (ShowcaseSegment segment : message.segments()) {
+            if (segment instanceof ItemGroupSegment) {
+                for (ItemSegment item : ((ItemGroupSegment) segment).items()) {
+                    if (item.depth() > 0) {
+                        nestedItemCount += inspectItem(item, limits, violations);
+                    }
                 }
             }
         }
 
-        if (itemCount > limits.maxItemsPerMessage()) {
-            violations.add("物品数量超限: " + itemCount + " > " + limits.maxItemsPerMessage());
+        if (directItemCount > limits.maxItemsPerMessage()) {
+            violations.add("物品数量超限: " + directItemCount + " > " + limits.maxItemsPerMessage());
+        }
+        if (nestedItemCount > limits.maxContainerContents()) {
+            violations.add("容器内容物数量超限: " + nestedItemCount + " > " + limits.maxContainerContents());
         }
         // 整条消息的字节规模（用协议编码后的大小衡量最准确）
         try {

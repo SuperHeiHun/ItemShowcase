@@ -50,13 +50,16 @@
 - 客户端 S2C 结构化包 → 占位组件：`名字 + [图标占位6空格(颜色编码0x010000|id<<8|idx)] + [物品名]`
 - **两种占位条目**（ShowcaseMessageHandler.ChatEntry）：ItemEntry（[i] 平铺图标）与
   ContainerEntry（[inv]/[ec]/[c]/[pack] → 可点击入口，图标 + "[背包 xN]"）
-- **点击入口打开 SnapshotViewerScreen**：9 列物品网格 GUI（真实图标+原版 Tooltip+滚轮滚动，
-  纯展示无槽位交互）——参考用户 Bukkit 插件 HBetterChat 的"存快照+点击查看"交互；
+- **点击入口打开原生箱子界面**：ChestMenu（GENERIC_9x1~9x6 按行数）+ ContainerScreen（1.20.1 官方映射名，
+  不是 ChestScreen！），自定义 ReadOnlyChestMenu 覆写 clicked/quickMoveStack 为空 → 完全只读且不发包；
+  渲染/玩家背包栏全部原版。参考用户 Bukkit 插件 HBetterChat 的"存快照+点击查看"交互；
   配置开关 clickViewGui（默认 true，false=平铺旧行为）。数据已在 SHOWCASE_MESSAGE 里，纯客户端实现
+- **[i] 命中容器展开的组（HAND 组带 title）也作为入口**，点击查看背包内部
 - 入口图标：inv=Items.CHEST、ec=Items.ENDER_CHEST（UI 按钮图标），pack/curios=组内第一个真实物品
 - 物品数据存 LRU 缓存（id→List<ChatEntry>，客户端解码真实 ItemStack）
-- Mixin 4 处：render HEAD（帧重置）、行 drawString Redirect（扫描占位 run 画图标，图标在占位区内居中）、
-  ChatScreen render TAIL（悬停 Tooltip）+ ChatScreen mouseClicked HEAD（入口点击）+ getLineHeight RETURN（行距，默认+3px）
+- Mixin 4 处：render HEAD（帧重置）、行 drawString Redirect（扫描占位 run 画图标；文字与图标整体下移
+  floorDiv(extraLineSpacing,2) 实现行块内垂直居中）、ChatScreen render TAIL（悬停 Tooltip）+
+  ChatScreen mouseClicked HEAD（入口点击）+ getLineHeight RETURN（行距，默认+7 → 行步进 16px）
 - 物品名优先用客户端解码 ItemStack 的 hover name（服务端 plainName 仅回退）
 - 1.20.1 的 mouseScrolled 是 3 参（4 参是 1.20.2+）
 

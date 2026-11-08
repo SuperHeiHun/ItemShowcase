@@ -13,8 +13,6 @@ public final class ClientInit {
     }
 
     public static void init() {
-        // 触发客户端类加载，验证客户端依赖完整
         ChatIconOverlay.class.getName();
-        ItemShowcaseLogger.debug("ItemShowcase 客户端初始化完成");
     }
 }

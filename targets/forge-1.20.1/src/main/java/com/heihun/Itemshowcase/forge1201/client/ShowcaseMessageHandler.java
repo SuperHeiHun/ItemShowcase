@@ -102,12 +102,19 @@ public final class ShowcaseMessageHandler {
         private final List<DisplayItem> items;
         /** 入口图标（inv/ec 用 UI 容器图标；pack/curios 用组内第一个真实物品）。 */
         private final ItemStack iconStack;
+        /** 发送者名字（GUI 标题 / 玩家头颅用）。 */
+        private final String senderName;
+        /** 发送者 UUID（玩家头颅渲染用）。 */
+        private final java.util.UUID senderId;
 
-        ContainerEntry(String title, List<DisplayItem> items, ItemStack iconStack, SourceKind source) {
+        ContainerEntry(String title, List<DisplayItem> items, ItemStack iconStack, SourceKind source,
+                       String senderName, java.util.UUID senderId) {
             super(source);
             this.title = title;
             this.items = items;
             this.iconStack = iconStack;
+            this.senderName = senderName;
+            this.senderId = senderId;
         }
 
         public String title() {
@@ -120,6 +127,14 @@ public final class ShowcaseMessageHandler {
 
         public ItemStack iconStack() {
             return iconStack;
+        }
+
+        public String senderName() {
+            return senderName;
+        }
+
+        public java.util.UUID senderId() {
+            return senderId;
         }
     }
 
@@ -209,7 +224,8 @@ public final class ShowcaseMessageHandler {
                             ? resolveText(group.title()).getString()
                             : defaultEntryTitle(group.source());
                     ContainerEntry entry = new ContainerEntry(title, displayItems,
-                            entryIcon(group.source(), firstStack), group.source());
+                            entryIcon(group.source(), firstStack), group.source(),
+                            message.senderName(), message.sender());
                     int count = displayItems.size();
                     line.append(Component.literal(" "));
                     line.append(placeholder(messageId, placeholderIndex));

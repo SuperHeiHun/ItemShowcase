@@ -9,29 +9,38 @@ package com.heihun.Itemshowcase.core.macros;
 public enum MacroType {
 
     /** 手持物品（主手）。 */
-    ITEM("[i]"),
+    ITEM("[i]", "[i]"),
 
     /** 玩家背包（主背包 + 快捷栏 + 盔甲 + 副手）。 */
-    INVENTORY("[inv]"),
+    INVENTORY("[inv]", "[inv]"),
 
     /** 末影箱（服务端真实数据）。 */
-    ENDER_CHEST("[ec]"),
+    ENDER_CHEST("[ec]", "[ec]"),
 
     /** 饰品栏（动态枚举全部已注册饰品槽位）。 */
-    CURIOS("[c]"),
+    CURIOS("[c]", "[c]"),
 
     /** 饰品栏中的背包及其内部物品。 */
-    PACK("[pack]");
+    PACK("[pack]", "[pack]", "[p]");
 
+    /** 主 token（显示 / 翻译 / 文档用）。 */
     private final String token;
+    /** 全部可触发 token（含别名，按声明顺序）。 */
+    private final String[] tokens;
 
-    MacroType(String token) {
+    MacroType(String token, String... tokens) {
         this.token = token;
+        this.tokens = tokens;
     }
 
-    /** 宏标记原文，例如 "[i]"。 */
+    /** 主宏标记原文，例如 "[i]"。 */
     public String token() {
         return token;
+    }
+
+    /** 全部可触发 token（含别名）。 */
+    public String[] tokens() {
+        return tokens;
     }
 
     /** 位掩码（用于 ClientCapabilities）。 */
@@ -39,9 +48,14 @@ public enum MacroType {
         return 1 << ordinal();
     }
 
-    /** 忽略大小写匹配宏 token。 */
+    /** 忽略大小写匹配任意一个宏 token（含别名）。 */
     public boolean matchesToken(String text, int offset) {
-        return text.regionMatches(true, offset, token, 0, token.length());
+        for (String candidate : tokens) {
+            if (text.regionMatches(true, offset, candidate, 0, candidate.length())) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /** 翻译键：该宏的展示标题（客户端 / 服务端语言文件各自解析）。 */

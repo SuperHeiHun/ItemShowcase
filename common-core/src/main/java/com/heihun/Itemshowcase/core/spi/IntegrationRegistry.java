@@ -26,7 +26,8 @@ public final class IntegrationRegistry {
                 com.heihun.Itemshowcase.core.logging.ItemShowcaseLogger.info(
                         "已启用容器物品集成: " + provider.id());
             } else {
-                com.heihun.Itemshowcase.core.logging.ItemShowcaseLogger.info(
+                // 正常状态（可选 MOD 未安装）不打 info，避免日志噪音
+                com.heihun.Itemshowcase.core.logging.ItemShowcaseLogger.debug(
                         "容器物品集成不可用（MOD 未安装）: " + provider.id());
             }
         } catch (Throwable t) {
@@ -47,7 +48,8 @@ public final class IntegrationRegistry {
                 com.heihun.Itemshowcase.core.logging.ItemShowcaseLogger.info(
                         "已启用饰品 API 集成: " + provider.id());
             } else {
-                com.heihun.Itemshowcase.core.logging.ItemShowcaseLogger.info(
+                // 正常状态（可选 MOD 未安装）不打 info，避免日志噪音
+                com.heihun.Itemshowcase.core.logging.ItemShowcaseLogger.debug(
                         "饰品 API 集成不可用（MOD 未安装）: " + provider.id());
             }
         } catch (Throwable t) {

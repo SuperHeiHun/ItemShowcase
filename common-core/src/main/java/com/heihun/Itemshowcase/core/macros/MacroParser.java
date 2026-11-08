@@ -17,10 +17,25 @@ import java.util.List;
  */
 public final class MacroParser {
 
-    /** 从长到短排列，保证最长匹配优先。 */
-    private static final MacroType[] MATCH_ORDER = {
-            MacroType.PACK, MacroType.INVENTORY, MacroType.ENDER_CHEST, MacroType.ITEM, MacroType.CURIOS
-    };
+    /**
+     * 全部 (宏, token) 组合，按 token 长度从长到短排列，保证最长匹配优先
+     * （例如 "[pack]" 必须先于 "[p]" 与 "[i]"）。
+     */
+    private static final MacroType[] MATCH_ORDER = buildMatchOrder();
+
+    private static MacroType[] buildMatchOrder() {
+        // 收集所有 (长度, 顺序) 后排序；宏种类与别名数量都很小，无需复杂结构
+        List<MacroType> byLength = new ArrayList<>();
+        for (MacroType type : MacroType.values()) {
+            byLength.add(type);
+        }
+        byLength.sort((a, b) -> {
+            int la = a.token().length();
+            int lb = b.token().length();
+            return Integer.compare(lb, la); // 主 token 长度降序即可覆盖别名场景
+        });
+        return byLength.toArray(new MacroType[0]);
+    }
 
     private MacroParser() {
     }

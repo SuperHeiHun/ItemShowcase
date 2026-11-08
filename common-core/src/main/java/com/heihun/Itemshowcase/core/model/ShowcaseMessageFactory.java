@@ -185,10 +185,10 @@ public final class ShowcaseMessageFactory {
         }
     }
 
-    /** 构建一个“背包 + 内部物品”的分组。 */
+    /** 构建一个“背包 + 内部物品”的分组。内容物不受消息级物品预算限制（独立限额 maxContainerContents 由校验器把关）。 */
     private ItemGroupSegment buildBackpackGroup(BackpackData backpack, SourceKind source, ItemBudget budget) {
         List<ItemSegment> items = new ArrayList<>();
-        // 第一个元素是背包本身
+        // 第一个元素是背包本身（消耗预算：它是直接展示的物品）
         if (budget.tryConsume()) {
             ItemStackView stack = backpack.backpack();
             items.add(new ItemSegment(
@@ -200,15 +200,17 @@ public final class ShowcaseMessageFactory {
                     backpack.providerId(),
                     0));
         }
-        // 后面是内部物品（深度 1，超过上限不再展开）
+        // 后面是内部物品（深度 1；数量受 maxContainerContents 限制，校验器兜底）
         int depth = 1;
         if (depth <= config.maxNestingDepth) {
+            int contentLimit = config.maxContainerContents;
+            int added = 0;
             for (ItemStackView content : backpack.contents()) {
+                if (added >= contentLimit) {
+                    break;
+                }
                 if (content == null || content.isEmpty()) {
                     continue;
-                }
-                if (!budget.tryConsume()) {
-                    break;
                 }
                 items.add(new ItemSegment(
                         content.toPayload(),
@@ -218,6 +220,7 @@ public final class ShowcaseMessageFactory {
                         SourceKind.BACKPACK,
                         backpack.providerId(),
                         depth));
+                added++;
             }
         }
         return new ItemGroupSegment(source, TextPayload.literal(backpack.backpack().plainDisplayName()), items);

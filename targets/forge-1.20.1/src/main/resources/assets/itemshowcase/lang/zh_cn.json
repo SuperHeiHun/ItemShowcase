@@ -1,7 +1,10 @@
 {
   "key.categories.itemshowcase": "ItemShowcase",
   "key.itemshowcase.quick_show": "快捷展示悬停物品 (Ctrl+Enter)",
-  "itemshowcase.chat.click_to_view": "点击查看", "itemshowcase.gui.snapshot_title": "%s · %s 件物品", "itemshowcase.chat.rate_limited": "展示太频繁了，请稍等片刻。",
+  "itemshowcase.chat.click_to_view": "点击查看",
+  "itemshowcase.gui.inventory_title": "%s 的背包",
+  "itemshowcase.gui.enderchest_title": "%s 的末影箱",
+  "itemshowcase.gui.snapshot_title": "%s · %s 件物品", "itemshowcase.chat.rate_limited": "展示太频繁了，请稍等片刻。",
   "itemshowcase.chat.quick_show_disabled": "本服务器已禁用快捷展示。",
   "itemshowcase.macro.item.title": "手持",
   "itemshowcase.macro.item.disabled": "[i] 宏已被服务器禁用。",

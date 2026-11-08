@@ -38,7 +38,7 @@ public abstract class ChatScreenMixin {
                 ChatIconOverlay.findClicked((int) mouseX, (int) mouseY);
         if (entry instanceof ShowcaseMessageHandler.ContainerEntry) {
             ShowcaseMessageHandler.ContainerEntry container = (ShowcaseMessageHandler.ContainerEntry) entry;
-            SnapshotViewerScreen.open(container.title(), container.items());
+            SnapshotViewerScreen.open(container);
             cir.setReturnValue(true);
         }
     }

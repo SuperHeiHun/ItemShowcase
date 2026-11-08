@@ -22,8 +22,10 @@ public interface ItemShowcaseConfig {
         public boolean allowMacroCurios = true;
         public boolean allowMacroPack = true;
         public boolean allowCtrlEnterShowcase = true;
-        /** 单条消息最大物品数量（含背包内部展开）。 */
+        /** 单条消息最大物品数量（平铺展示的物品；容器内部展开不受此限，见 maxContainerContents）。 */
         public int maxItemsPerMessage = 54;
+        /** 单个容器物品（如精妙背包）展开的内容物上限（大背包可超过 54 格）。 */
+        public int maxContainerContents = 108;
         /** 单条消息最大序列化数据大小（字节）。 */
         public int maxMessageBytes = 32768;
         /** 单个物品最大数据大小（字节）。 */
@@ -50,6 +52,7 @@ public interface ItemShowcaseConfig {
             allowMacroPack = true;
             allowCtrlEnterShowcase = true;
             maxItemsPerMessage = 54;
+            maxContainerContents = 108;
             maxMessageBytes = 32768;
             maxItemBytes = com.heihun.Itemshowcase.core.ItemShowcaseConstants.DEFAULT_MAX_ITEM_BYTES;
             maxNestingDepth = 1;
@@ -63,6 +66,7 @@ public interface ItemShowcaseConfig {
         @Override
         public void sanitize() {
             maxItemsPerMessage = clamp(maxItemsPerMessage, 1, 512);
+            maxContainerContents = clamp(maxContainerContents, 1, 512);
             maxMessageBytes = clamp(maxMessageBytes, 1024, 1024 * 1024);
             maxItemBytes = clamp(maxItemBytes, 256, 256 * 1024);
             maxNestingDepth = clamp(maxNestingDepth, 1, 4);
@@ -132,7 +136,7 @@ public interface ItemShowcaseConfig {
             animations = true;
             iconSpacing = 2;
             maxRenderedItems = 54;
-            extraLineSpacing = 7;
+            extraLineSpacing = 16;
             clickViewGui = true;
             quickShowMode = "DIRECT_SEND";
         }
@@ -142,7 +146,7 @@ public interface ItemShowcaseConfig {
             iconSize = clamp(iconSize, 8, 32);
             iconSpacing = clamp(iconSpacing, 0, 16);
             maxRenderedItems = clamp(maxRenderedItems, 1, 512);
-            extraLineSpacing = clamp(extraLineSpacing, 0, 20);
+            extraLineSpacing = clamp(extraLineSpacing, 0, 32);
             if (!"DIRECT_SEND".equals(quickShowMode) && !"INSERT_MACRO".equals(quickShowMode)) {
                 quickShowMode = "DIRECT_SEND";
             }

@@ -64,6 +64,11 @@ repositories {
         url = uri("https://www.cursemaven.com/")
         content { includeGroup "curse.maven" }
     }
+    maven {
+        name = "IPN-Releases"
+        url = uri("https://maven.ipn-mod.org/releases")
+        content { includeGroup "org.anti_ad.mc" }
+    }
 }
 
 dependencies {
@@ -82,6 +87,9 @@ dependencies {
     compileOnly fg.deobf("curse.maven:sophisticated-core-${sc_cf_project}:${sc_cf_file}")
     runtimeOnly fg.deobf("curse.maven:sophisticated-backpacks-${sb_cf_project}:${sb_cf_file}")
     runtimeOnly fg.deobf("curse.maven:sophisticated-core-${sc_cf_project}:${sc_cf_file}")
+
+    // Inventory Profiles Next API：@IPNIgnore 注解（展示 GUI 禁用 IPN 按钮），仅编译
+    compileOnly "org.anti_ad.mc:IPN-forge-1.20:${ipn_version}"
 
     // Mixin 注解处理器（生成 refmap）
     annotationProcessor 'org.spongepowered:mixin:0.8.5:processor'

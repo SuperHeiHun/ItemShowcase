@@ -41,8 +41,8 @@ public abstract class ChatComponentMixin {
                     target = "Lnet/minecraft/client/gui/GuiGraphics;drawString(Lnet/minecraft/client/gui/Font;Lnet/minecraft/util/FormattedCharSequence;III)I"))
     private int itemshowcase$drawLineWithIcons(GuiGraphics guiGraphics, Font font, FormattedCharSequence line,
                                                int x, int y, int color) {
-        // 行步进加大后，把文字在行块内垂直居中（上下行距对称）
-        int shift = Math.floorDiv(ShowcaseServices.clientConfig().extraLineSpacing, 2);
+        // 行步进加大后，文字整体向上偏移（用户要求：上方留白、与输入框拉开距离）
+        int shift = -Math.floorDiv(ShowcaseServices.clientConfig().extraLineSpacing, 2);
         int drawY = y + shift;
         int result = guiGraphics.drawString(font, line, x, drawY, color);
         try {
