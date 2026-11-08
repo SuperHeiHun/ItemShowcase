@@ -1,37 +1,26 @@
 ﻿Active code page: 65001
 To honour the JVM settings for this build a single-use Daemon process will be forked. For more on this, please refer to https://docs.gradle.org/8.8/userguide/gradle_daemon.html#sec:disabling_the_daemon in the Gradle documentation.
 Daemon will be stopped at the end of the build 
-> Task :common-core:compileJava UP-TO-DATE
 > Task :createMinecraftArtifacts UP-TO-DATE
+> Task :common-core:compileJava UP-TO-DATE
 
 > Task :compileJava
-.\gradlew.bat : E:\Test\mod\ItemShowcase\targets\neoforge-1.21.1\src\main\java\com\heihun\Itemshowcase\neoforge1211\mix
-in\ChatComponentMixin.java:6: 错误: 程序包io.github.llamalad7.mixinextras.injector.wrapoperation不存在
+.\gradlew.bat : E:\Test\mod\ItemShowcase\targets\neoforge-1.21.1\src\main\java\com\heihun\Itemshowcase\neoforge1211\Ite
+mShowcaseNeoForge.java:49: 错误: 找不到符号
 所在位置 行:1 字符: 1
 + .\gradlew.bat --no-daemon compileJava 2>&1 | Out-File clog.txt -Encod ...
 + ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    + CategoryInfo          : NotSpecified: (E:\Test\mod\Ite...rapoperation不存在:String) [], RemoteException
+    + CategoryInfo          : NotSpecified: (E:\Test\mod\Ite...a:49: 错误: 找不到符号:String) [], RemoteException
     + FullyQualifiedErrorId : NativeCommandError
  
-import io.github.llamalad7.mixinextras.injector.wrapoperation.Operation;
-                                                             ^
-E:\Test\mod\ItemShowcase\targets\neoforge-1.21.1\src\main\java\com\heihun\Itemshowcase\neoforge1211\mixin\ChatComponent
-Mixin.java:7: 错误: 程序包io.github.llamalad7.mixinextras.injector.wrapoperation不存在
-import io.github.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
-                                                             ^
-E:\Test\mod\ItemShowcase\targets\neoforge-1.21.1\src\main\java\com\heihun\Itemshowcase\neoforge1211\mixin\ChatComponent
-Mixin.java:45: 错误: 找不到符号
-                                               int x, int y, int color, Operation<Integer> original) {
-                                                                        ^
-  符号:   类 Operation
-  位置: 类 ChatComponentMixin
-E:\Test\mod\ItemShowcase\targets\neoforge-1.21.1\src\main\java\com\heihun\Itemshowcase\neoforge1211\mixin\ChatComponent
-Mixin.java:38: 错误: 找不到符号
-    @WrapOperation(
-     ^
-  符号:   类 WrapOperation
-  位置: 类 ChatComponentMixin
-4 个错误
+    private void onModConfigEvent(ModConfigEvent event) {
+                                  ^
+  符号:   类 ModConfigEvent
+  位置: 类 ItemShowcaseNeoForge
+注: E:\Test\mod\ItemShowcase\targets\neoforge-1.21.1\src\main\java\com\heihun\Itemshowcase\neoforge1211\client\ChatIconO
+verlay.java使用或覆盖了已过时的 API。
+注: 有关详细信息, 请使用 -Xlint:deprecation 重新编译。
+1 个错误
 
 > Task :compileJava FAILED
 
@@ -45,5 +34,5 @@ Execution failed for task ':compileJava'.
 > Run with --info option to get more log output.
 > Run with --scan to get full insights.
 
-BUILD FAILED in 13s
+BUILD FAILED in 10s
 3 actionable tasks: 1 executed, 2 up-to-date

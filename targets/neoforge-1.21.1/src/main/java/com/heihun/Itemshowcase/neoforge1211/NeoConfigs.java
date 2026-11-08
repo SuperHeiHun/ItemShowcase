@@ -134,7 +134,7 @@ public final class NeoConfigs {
     }
 
     /** 配置加载/重载事件：把 TOML 值同步回 common-core 配置对象。 */
-    static void syncAll() {
+    static void syncServer() {
         ItemShowcaseConfig.Server s = ShowcaseServices.serverValues();
         s.allowMacroItem = ALLOW_MACRO_ITEM.get();
         s.allowMacroInventory = ALLOW_MACRO_INVENTORY.get();
@@ -154,6 +154,14 @@ public final class NeoConfigs {
         s.expandContainerItems = EXPAND_CONTAINER_ITEMS.get();
         s.sanitize();
 
+        ShowcaseServices.onConfigSynced();
+    }
+
+    /**
+     * 客户端配置同步。注意：CLIENT 类型配置在 mod 构造期尚未加载，
+     * 只能在 ModConfigEvent.Loading / Reloading（配置就绪后）调用。
+     */
+    static void syncClient() {
         ItemShowcaseConfig.Client c = ShowcaseServices.clientValues();
         c.chatIconRendering = CHAT_ICON_RENDERING.get();
         c.iconSize = ICON_SIZE.get();
@@ -166,8 +174,6 @@ public final class NeoConfigs {
         c.clickViewGui = CLICK_VIEW_GUI.get();
         c.quickShowMode = QUICK_SHOW_MODE.get().name();
         c.sanitize();
-
-        ShowcaseServices.onConfigSynced();
     }
 
     private static <T extends ItemShowcaseConfig> T freshDefaults(T config) {

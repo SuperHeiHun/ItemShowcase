@@ -23,9 +23,10 @@ public final class ShowcaseServices {
     private ShowcaseServices() {
     }
 
+    /** 集成注册 + 配置初始同步（服务端值；CLIENT 配置在事件中同步）。 */
     public static void init() {
         com.heihun.Itemshowcase.neoforge1211.server.integration.IntegrationSetup.registerAll(INTEGRATIONS);
-        NeoConfigs.syncAll();
+        NeoConfigs.syncServer();
         ItemShowcaseLogger.info("ItemShowcase 配置已加载");
     }
 

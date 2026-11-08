@@ -7,6 +7,7 @@ import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.ModContainer;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
+import net.neoforged.fml.event.config.ModConfigEvent;
 import net.neoforged.neoforge.common.NeoForge;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,7 +29,9 @@ public class ItemShowcaseNeoForge {
         NeoConfigs.register(modContainer);
         // 网络（PayloadRegistrar）
         NeoNetwork.register(modBus);
-        // 集成注册 + 配置初始同步
+        // 配置加载/热重载事件（Loading 与 Reloading，按 spec 类型分别同步）
+        modBus.addListener(this::onModConfigEvent);
+        // 集成注册 + 服务端配置初始同步（CLIENT 配置构造期未加载，仅在事件中同步）
         ShowcaseServices.init();
 
         // 游戏事件总线：服务端聊天处理（含退出清理）
@@ -42,6 +45,15 @@ public class ItemShowcaseNeoForge {
     }
 
     private void onCommonSetup(FMLCommonSetupEvent event) {
+    }
+
+    private void onModConfigEvent(ModConfigEvent event) {
+        // Loading（首次加载）与 Reloading（外部修改热重载）：按 spec 类型分别同步
+        if (event.getConfig().getSpec() == NeoConfigs.SERVER_SPEC) {
+            NeoConfigs.syncServer();
+        } else if (event.getConfig().getSpec() == NeoConfigs.CLIENT_SPEC) {
+            NeoConfigs.syncClient();
+        }
     }
 
     /** 把平台 Logger 接入 common-core 统一日志门面。 */
