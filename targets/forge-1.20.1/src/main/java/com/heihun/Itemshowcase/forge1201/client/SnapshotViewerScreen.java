@@ -60,14 +60,20 @@ public final class SnapshotViewerScreen extends Screen {
 
         int gridWidth = COLUMNS * SLOT_SIZE;
         int gridHeight = this.visibleRows * SLOT_SIZE;
-        // 面板背景与边框
-        guiGraphics.fill(this.gridLeft - 4, this.gridTop - 4,
-                this.gridLeft + gridWidth + 4, this.gridTop + gridHeight + 4, 0xC0101010);
-        guiGraphics.renderOutline(this.gridLeft - 4, this.gridTop - 4,
-                gridWidth + 8, gridHeight + 8, 0xFF50505A);
+        int panelLeft = this.gridLeft - 7;
+        int panelTop = this.gridTop - 7;
+        int panelRight = this.gridLeft + gridWidth + 7;
+        int panelBottom = this.gridTop + gridHeight + 7;
 
-        // 标题
-        guiGraphics.drawCenteredString(this.font, this.title, this.width / 2, this.gridTop - 20, 0xFFFFFF);
+        // 原版容器面板：灰色主体 + 左上亮 / 右下暗 的立体边框
+        guiGraphics.fill(panelLeft, panelTop, panelRight, panelBottom, 0xFFC6C6C6);
+        guiGraphics.fill(panelLeft, panelTop, panelRight, panelTop + 1, 0xFFFFFFFF);
+        guiGraphics.fill(panelLeft, panelTop, panelLeft + 1, panelBottom, 0xFFFFFFFF);
+        guiGraphics.fill(panelLeft, panelBottom - 1, panelRight, panelBottom, 0xFF555555);
+        guiGraphics.fill(panelRight - 1, panelTop, panelRight, panelBottom, 0xFF555555);
+
+        // 原版风格标题（深灰黑文字）
+        guiGraphics.drawCenteredString(this.font, this.title, this.width / 2, panelTop - 16, 0xFF404040);
 
         // 网格（裁剪 + 滚动）
         guiGraphics.enableScissor(this.gridLeft, this.gridTop,
@@ -79,45 +85,52 @@ public final class SnapshotViewerScreen extends Screen {
         for (int i = 0; i < this.items.size(); i++) {
             int col = i % COLUMNS;
             int row = i / COLUMNS;
-            int x = this.gridLeft + col * SLOT_SIZE + 1;
-            int y = this.gridTop + row * SLOT_SIZE + 1 - this.scrollY;
-            if (y + 16 < this.gridTop || y > this.gridTop + gridHeight) {
+            int x = this.gridLeft + col * SLOT_SIZE;
+            int y = this.gridTop + row * SLOT_SIZE - this.scrollY;
+            if (y + SLOT_SIZE < this.gridTop || y > this.gridTop + gridHeight) {
                 continue;
             }
-            guiGraphics.fill(x - 1, y - 1, x + 17, y + 17, 0x80202028);
+            drawVanillaSlot(guiGraphics, x, y);
             ItemStack stack = this.items.get(i).stack();
             if (!stack.isEmpty()) {
-                guiGraphics.renderItem(stack, x, y);
-                guiGraphics.renderItemDecorations(this.font, stack, x, y, null);
+                guiGraphics.renderItem(stack, x + 1, y + 1);
+                guiGraphics.renderItemDecorations(this.font, stack, x + 1, y + 1, null);
             }
-            if (mouseX >= x - 1 && mouseX < x + 17 && mouseY >= y - 1 && mouseY < y + 17) {
+            if (mouseX >= x && mouseX < x + SLOT_SIZE && mouseY >= y && mouseY < y + SLOT_SIZE) {
                 hoveredIndex = i;
                 hoveredX = x;
                 hoveredY = y;
             }
         }
-        if (hoveredIndex >= 0) {
-            // 悬停高亮
-            guiGraphics.fill(hoveredX - 1, hoveredY - 1, hoveredX + 17, hoveredY + 17, 0x60FFFFFF);
-        }
         guiGraphics.disableScissor();
 
         if (hoveredIndex >= 0) {
+            // 原版悬停高亮（半透明白覆盖整个槽位）
+            guiGraphics.fill(hoveredX, hoveredY, hoveredX + SLOT_SIZE, hoveredY + SLOT_SIZE, 0x80FFFFFF);
             ItemStack stack = this.items.get(hoveredIndex).stack();
             if (!stack.isEmpty() && ShowcaseServices.clientConfig().showTooltip) {
                 guiGraphics.renderTooltip(this.font, stack, mouseX, mouseY);
             }
         }
 
-        // 滚动指示
+        // 滚动条（原版配色）
         if (this.maxScroll > 0) {
-            int trackX = this.gridLeft + gridWidth + 2;
-            int trackHeight = gridHeight;
-            guiGraphics.fill(trackX, this.gridTop, trackX + 2, this.gridTop + trackHeight, 0xFF2A2A32);
+            int trackX = panelRight - 4;
+            int trackHeight = gridHeight + 14;
+            guiGraphics.fill(trackX, panelTop, trackX + 3, panelTop + trackHeight, 0xFF8B8B8B);
             int thumbHeight = Math.max(8, trackHeight * (trackHeight / (trackHeight + this.maxScroll)));
-            int thumbY = this.gridTop + (trackHeight - thumbHeight) * this.scrollY / this.maxScroll;
-            guiGraphics.fill(trackX, thumbY, trackX + 2, thumbY + thumbHeight, 0xFF9090A0);
+            int thumbY = panelTop + (trackHeight - thumbHeight) * this.scrollY / this.maxScroll;
+            guiGraphics.fill(trackX, thumbY, trackX + 3, thumbY + thumbHeight, 0xFFFFFFFF);
         }
+    }
+
+    /** 原版风格槽位：内凹格子（上左深色、下右亮色）。 */
+    private void drawVanillaSlot(GuiGraphics guiGraphics, int x, int y) {
+        guiGraphics.fill(x + 1, y + 1, x + SLOT_SIZE - 1, y + SLOT_SIZE - 1, 0xFF8B8B8B);
+        guiGraphics.fill(x + 1, y + 1, x + SLOT_SIZE - 1, y + 2, 0xFF373737);
+        guiGraphics.fill(x + 1, y + 1, x + 2, y + SLOT_SIZE - 1, 0xFF373737);
+        guiGraphics.fill(x + 1, y + SLOT_SIZE - 2, x + SLOT_SIZE - 1, y + SLOT_SIZE - 1, 0xFFFFFFFF);
+        guiGraphics.fill(x + SLOT_SIZE - 2, y + 1, x + SLOT_SIZE - 1, y + SLOT_SIZE - 1, 0xFFFFFFFF);
     }
 
     @Override

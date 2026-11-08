@@ -130,8 +130,9 @@ public final class ShowcaseMessageFactory {
     }
 
     /**
-     * [c]：全部饰品槽位，按槽位类型分组（组标题 = 槽位类型名）。
-     * 槽位类型名来自饰品 API 动态查询，本方法不做任何槽位名判断。
+     * [c]：全部饰品槽位。生成单一分组（标题 = 翻译键"饰品"，客户端本地化），
+     * 每个物品的 slotInfo 保留饰品槽位类型 ID（供客户端 GUI 分组显示）。
+     * 槽位来自饰品 API 动态查询，本方法不做任何槽位名判断。
      */
     private void appendCurios(List<ShowcaseSegment> out, ItemBudget budget) {
         List<AccessorySlotData> accessories = views.getAccessories();
@@ -139,38 +140,29 @@ public final class ShowcaseMessageFactory {
             out.add(new TextSegment(TextPayload.translatable(MacroType.CURIOS.emptyKey())));
             return;
         }
-        // 保持首次出现顺序的按类型分组
-        Map<String, List<AccessorySlotData>> grouped = new LinkedHashMap<>();
+        List<ItemSegment> items = new ArrayList<>();
         for (AccessorySlotData slot : accessories) {
             if (slot.isEmpty()) {
                 continue;
             }
-            List<AccessorySlotData> bucket = grouped.get(slot.slotTypeId());
-            if (bucket == null) {
-                bucket = new ArrayList<>();
-                grouped.put(slot.slotTypeId(), bucket);
+            if (!budget.tryConsume()) {
+                break;
             }
-            bucket.add(slot);
+            items.add(new ItemSegment(
+                    slot.stack().toPayload(),
+                    slot.stack().getCount(),
+                    slot.stack().plainDisplayName(),
+                    null,
+                    SourceKind.CURIO,
+                    slot.slotTypeId(),
+                    0));
         }
-        for (Map.Entry<String, List<AccessorySlotData>> entry : grouped.entrySet()) {
-            List<ItemSegment> items = new ArrayList<>(entry.getValue().size());
-            for (AccessorySlotData slot : entry.getValue()) {
-                if (budget.tryConsume()) {
-                    items.add(new ItemSegment(
-                            slot.stack().toPayload(),
-                            slot.stack().getCount(),
-                            slot.stack().plainDisplayName(),
-                            null,
-                            SourceKind.CURIO,
-                            slot.slotTypeId(),
-                            0));
-                }
-            }
-            if (!items.isEmpty()) {
-                out.add(new SectionSegment(TextPayload.literal(entry.getKey())));
-                out.add(new ItemGroupSegment(SourceKind.CURIO, TextPayload.literal(entry.getKey()), items));
-            }
+        if (items.isEmpty()) {
+            out.add(new TextSegment(TextPayload.translatable(MacroType.CURIOS.emptyKey())));
+            return;
         }
+        out.add(new ItemGroupSegment(SourceKind.CURIO,
+                TextPayload.translatable(MacroType.CURIOS.titleKey()), items));
     }
 
     /** [pack]：饰品栏中装备的所有可识别背包及其内部物品。 */

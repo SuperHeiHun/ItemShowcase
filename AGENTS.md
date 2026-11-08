@@ -48,10 +48,17 @@
 ## 当前聊天渲染模型（Forge 1.20.1）
 
 - 客户端 S2C 结构化包 → 占位组件：`名字 + [图标占位6空格(颜色编码0x010000|id<<8|idx)] + [物品名]`
-- 物品数据存 LRU 缓存（id→DisplayItem，客户端解码真实 ItemStack）
-- Mixin 3 处：render HEAD（帧重置）、行 drawString Redirect（扫描占位 run 画图标，图标在占位区内居中）、
-  ChatScreen render TAIL（悬停 Tooltip）+ getLineHeight RETURN（行距，默认+3px）
+- **两种占位条目**（ShowcaseMessageHandler.ChatEntry）：ItemEntry（[i] 平铺图标）与
+  ContainerEntry（[inv]/[ec]/[c]/[pack] → 可点击入口，图标 + "[背包 xN]"）
+- **点击入口打开 SnapshotViewerScreen**：9 列物品网格 GUI（真实图标+原版 Tooltip+滚轮滚动，
+  纯展示无槽位交互）——参考用户 Bukkit 插件 HBetterChat 的"存快照+点击查看"交互；
+  配置开关 clickViewGui（默认 true，false=平铺旧行为）。数据已在 SHOWCASE_MESSAGE 里，纯客户端实现
+- 入口图标：inv=Items.CHEST、ec=Items.ENDER_CHEST（UI 按钮图标），pack/curios=组内第一个真实物品
+- 物品数据存 LRU 缓存（id→List<ChatEntry>，客户端解码真实 ItemStack）
+- Mixin 4 处：render HEAD（帧重置）、行 drawString Redirect（扫描占位 run 画图标，图标在占位区内居中）、
+  ChatScreen render TAIL（悬停 Tooltip）+ ChatScreen mouseClicked HEAD（入口点击）+ getLineHeight RETURN（行距，默认+3px）
 - 物品名优先用客户端解码 ItemStack 的 hover name（服务端 plainName 仅回退）
+- 1.20.1 的 mouseScrolled 是 3 参（4 参是 1.20.2+）
 
 ## 用户偏好
 
@@ -73,6 +80,7 @@ cd targets/forge-1.20.1; .\gradlew.bat --no-daemon build
 - ✅ 阶段一：common-core 完成（41 测试通过，Java 8 字节码）
 - ✅ 阶段二：Forge 1.20.1 MVP（BUILD SUCCESSFUL，jar 已含合并 common-core + refmap）
 - ✅ 阶段三（Forge 1.20.1）：CuriosProvider + SophisticatedBackpacksIntegration + [c][pack][i]展开
+- ✅ GUI 查看功能（参考 HBetterChat 插件交互）：[inv]/[ec]/[c]/[pack] 聊天内显示入口，点击打开 SnapshotViewerScreen
 - 🔧 已修复：图标全部叠在玩家名处（行内序号）、物品名显示注册表 ID（客户端解码取名）、间距/行距
 - ⏭️ 下一步：阶段四 Fabric 1.20.1（Loom + Fabric API，复用 core；聊天渲染 Mixin 移植 + 网络用 Fabric networking），
   然后阶段五 1.21.1（Forge/NeoForge/Fabric，Data Components 序列化 dc1211）、阶段六 1.16.5（Java 8）

@@ -122,16 +122,16 @@ class ShowcaseMessageFactoryTest {
     @Test
     void curiosMacroGroupsBySlotType() {
         ShowcaseMessage message = build(new StubViews(), "[c]");
-        // 结构：Section(ring) Group(ring) Section(charm) Group(charm) —— 空槽位被过滤
-        long sections = message.segments().stream().filter(s -> s.type() == ShowcaseSegment.Type.SECTION).count();
-        long groups = message.segments().stream().filter(s -> s.type() == ShowcaseSegment.Type.ITEM_GROUP).count();
-        assertEquals(2, sections);
-        assertEquals(2, groups);
-
-        ItemGroupSegment ringGroup = (ItemGroupSegment) message.segments().get(1);
-        assertEquals("ring", ringGroup.title().value());
-        assertEquals(2, ringGroup.items().size());
-        assertEquals("ring", ringGroup.items().get(0).slotInfo());
+        // [c] 生成单一分组（标题 = 翻译键"饰品"），空槽位被过滤
+        ItemGroupSegment group = (ItemGroupSegment) message.segments().get(0);
+        assertEquals(SourceKind.CURIO, group.source());
+        assertEquals(TextPayload.Kind.TRANSLATABLE, group.title().kind());
+        assertEquals("itemshowcase.macro.curios.title", group.title().value());
+        // 3 个非空饰品（空槽位被过滤），每个保留槽位类型 ID
+        assertEquals(3, group.items().size());
+        assertEquals("ring", group.items().get(0).slotInfo());
+        assertEquals("ring", group.items().get(1).slotInfo());
+        assertEquals("charm", group.items().get(2).slotInfo());
     }
 
     @Test

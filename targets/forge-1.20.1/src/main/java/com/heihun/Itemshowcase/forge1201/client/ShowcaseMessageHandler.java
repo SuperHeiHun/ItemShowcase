@@ -202,7 +202,9 @@ public final class ShowcaseMessageHandler {
                     if (displayItems.isEmpty()) {
                         continue;
                     }
-                    String title = group.title() != null ? group.title().value()
+                    // 标题：解析 TRANSLATABLE（如 [c] 的组标题"饰品"），字面标题直接用
+                    String title = group.title() != null
+                            ? resolveText(group.title()).getString()
                             : defaultEntryTitle(group.source());
                     ContainerEntry entry = new ContainerEntry(title, displayItems,
                             entryIcon(group.source(), firstStack), group.source());

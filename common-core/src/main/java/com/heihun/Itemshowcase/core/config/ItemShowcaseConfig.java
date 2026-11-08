@@ -104,8 +104,12 @@ public interface ItemShowcaseConfig {
         public int iconSpacing = 2;
         /** 单条聊天消息最多渲染的图标数（防御渲染性能）。 */
         public int maxRenderedItems = 54;
-        /** 聊天行距附加量（像素）：缓解 16px 图标与 9px 行高的视觉拥挤，0 = 原版行距。 */
-        public int extraLineSpacing = 3;
+        /**
+         * 聊天行距附加量（像素）：原版行步进 = 9px + 本值。
+         * 默认 7 → 行步进 16px，16px 物品图标垂直占满自己的行块、与上下行对称不重叠。
+         * 注意：Minecraft 聊天行距是全局布局，无法只对单条消息生效（原版限制）。
+         */
+        public int extraLineSpacing = 7;
         /**
          * 容器宏（[inv]/[ec]/[c]/[pack]）的聊天展示模式：
          * true = 显示可点击入口，点击打开物品查看 GUI；
@@ -128,7 +132,7 @@ public interface ItemShowcaseConfig {
             animations = true;
             iconSpacing = 2;
             maxRenderedItems = 54;
-            extraLineSpacing = 3;
+            extraLineSpacing = 7;
             clickViewGui = true;
             quickShowMode = "DIRECT_SEND";
         }

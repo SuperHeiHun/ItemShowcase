@@ -86,16 +86,18 @@ public final class ChatIconOverlay {
                 continue; // 缓存淘汰或解码失败：占位保留为空白
             }
             int iconSize = config.iconSize;
-            // 图标在占位区内水平居中，左右留出间隙
+            // 图标在占位区内水平居中；垂直相对文字行居中（floorDiv 保证上下间隙对称）
             int iconX = x + run.startPx + Math.max(0, (run.runWidth - iconSize) / 2);
+            int iconY = y + net.minecraft.util.Mth.floorDiv(
+                    fontLineHeight() - iconSize, 2);
             if (entry instanceof ShowcaseMessageHandler.ContainerEntry) {
                 ShowcaseMessageHandler.ContainerEntry container = (ShowcaseMessageHandler.ContainerEntry) entry;
-                drawIcon(guiGraphics, font, container.iconStack(), iconX, y, config);
+                drawIcon(guiGraphics, font, container.iconStack(), iconX, iconY, config);
             } else if (entry instanceof ShowcaseMessageHandler.ItemEntry) {
                 ShowcaseMessageHandler.ItemEntry item = (ShowcaseMessageHandler.ItemEntry) entry;
-                drawIcon(guiGraphics, font, item.stack(), iconX, y, config);
+                drawIcon(guiGraphics, font, item.stack(), iconX, iconY, config);
             }
-            HOVERABLES.add(new IconRect(iconX, y - 3, iconSize, entry));
+            HOVERABLES.add(new IconRect(iconX, iconY, iconSize, entry));
         }
     }
 
@@ -143,6 +145,11 @@ public final class ChatIconOverlay {
         return null;
     }
 
+    /** 文字行高（9px），图标垂直居中的基准。 */
+    private static int fontLineHeight() {
+        return net.minecraft.client.Minecraft.getInstance().font.lineHeight;
+    }
+
     /** 绘制单个物品图标（原版渲染管线）。 */
     private static void drawIcon(GuiGraphics guiGraphics, Font font, ItemStack stack, int x, int y,
                                  ItemShowcaseConfig.Client config) {
@@ -151,7 +158,7 @@ public final class ChatIconOverlay {
             PoseStack pose = guiGraphics.pose();
             pose.pushPose();
             float scale = config.iconSize / 16.0f;
-            pose.translate(x, y - 3, 0);
+            pose.translate(x, y, 0);
             if (scale != 1.0f) {
                 // 以左上角为原点缩放
                 pose.scale(scale, scale, 1.0f);
