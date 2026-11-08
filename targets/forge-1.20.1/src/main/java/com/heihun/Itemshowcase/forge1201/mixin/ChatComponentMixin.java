@@ -41,9 +41,12 @@ public abstract class ChatComponentMixin {
                     target = "Lnet/minecraft/client/gui/GuiGraphics;drawString(Lnet/minecraft/client/gui/Font;Lnet/minecraft/util/FormattedCharSequence;III)I"))
     private int itemshowcase$drawLineWithIcons(GuiGraphics guiGraphics, Font font, FormattedCharSequence line,
                                                int x, int y, int color) {
-        int result = guiGraphics.drawString(font, line, x, y, color);
+        // 行步进加大后，把文字在行块内垂直居中（上下行距对称）
+        int shift = Math.floorDiv(ShowcaseServices.clientConfig().extraLineSpacing, 2);
+        int drawY = y + shift;
+        int result = guiGraphics.drawString(font, line, x, drawY, color);
         try {
-            ChatIconOverlay.renderLine(guiGraphics, font, line, x, y);
+            ChatIconOverlay.renderLine(guiGraphics, font, line, x, drawY);
         } catch (Throwable renderFailure) {
             // 图标渲染故障不允许破坏聊天绘制
             ItemShowcaseLogger.warn("聊天行图标渲染异常", renderFailure);

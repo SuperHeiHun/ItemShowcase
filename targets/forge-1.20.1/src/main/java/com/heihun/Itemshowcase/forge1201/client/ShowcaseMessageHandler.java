@@ -184,7 +184,9 @@ public final class ShowcaseMessageHandler {
                 line.append(resolveText(((TextSegment) segment).payload()));
             } else if (segment instanceof ItemGroupSegment) {
                 ItemGroupSegment group = (ItemGroupSegment) segment;
-                boolean isEntry = config.clickViewGui && group.source() != SourceKind.HAND;
+                // HAND 组带标题 = [i] 命中容器物品展开（如精妙背包），同样作为入口
+                boolean isEntry = config.clickViewGui
+                        && (group.source() != SourceKind.HAND || group.title() != null);
                 if (group.title() != null && config.showSourceGroups && !isEntry) {
                     line.append(Component.literal(group.title().value()).withStyle(ChatFormatting.GOLD));
                 }
