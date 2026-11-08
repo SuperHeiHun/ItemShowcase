@@ -9,7 +9,6 @@ import com.heihun.Itemshowcase.core.model.ShowcaseMessage;
 import com.heihun.Itemshowcase.core.model.ShowcaseSegment;
 import com.heihun.Itemshowcase.core.model.SourceKind;
 import com.heihun.Itemshowcase.core.model.TextSegment;
-import com.heihun.Itemshowcase.core.protocol.ItemStackPayload;
 import com.heihun.Itemshowcase.core.text.TextPayload;
 import com.heihun.Itemshowcase.forge1201.ShowcaseServices;
 import com.heihun.Itemshowcase.forge1201.server.ItemStackCodec;
@@ -30,15 +29,14 @@ import java.util.Map;
 /**
  * S2C 展示消息处理：结构化数据 → 聊天占位组件 + 物品数据缓存。
  *
- * <p>渲染模型（与 ChatIconOverlay 配合）：</p>
+ * <p>聊天内的两种占位 run（与 ChatIconOverlay 配合）：</p>
  * <ul>
- *   <li>每个物品在聊天文本中占一个“占位 run”：4 个空格（约 16px），
- *       其文本颜色编码了 (消息ID, 物品索引)——空格无字形，视觉上不可见。</li>
- *   <li>物品数据解码后的真实 ItemStack 存入 {@link #DATA}（LRU，防内存膨胀）。</li>
- *   <li>聊天渲染 Mixin 扫描每行文本，命中占位 run 后从缓存取出真实
- *       ItemStack 并用原版 ItemRenderer 绘制图标。</li>
- *   <li>数据被 LRU 淘汰时占位退化为普通空白，不影响聊天可读性。</li>
+ *   <li><b>物品占位</b>：[i] 宏等直接展示的物品，渲染真实图标 + 悬停 Tooltip。</li>
+ *   <li><b>入口占位</b>：[inv]/[ec]/[c]/[pack] 等容器类宏，渲染入口图标 +
+ *       “点击查看”文字，点击后打开 {@link SnapshotViewerScreen} 查看全部物品。</li>
  * </ul>
+ * <p>占位 run 由“连续空格 + 编码颜色（0x010000 | id<<8 | idx）”标识，
+ * 物品数据存 LRU 缓存防内存膨胀；数据淘汰时占位退化为普通空白。</p>
  */
 public final class ShowcaseMessageHandler {
 
@@ -51,11 +49,11 @@ public final class ShowcaseMessageHandler {
     /** 消息 ID 编码空间：与占位颜色编码一致（低 8 位循环）。 */
     private static final int MAX_MESSAGE_ID = 256;
 
-    /** 消息数据缓存：id → 物品列表（访问顺序淘汰）。 */
-    private static final Map<Integer, List<DisplayItem>> DATA =
+    /** 消息数据缓存：id → 聊天条目列表（访问顺序淘汰）。 */
+    private static final Map<Integer, List<ChatEntry>> DATA =
             Collections.synchronizedMap(new LinkedHashMap<>(32, 0.75f, true) {
                 @Override
-                protected boolean removeEldestEntry(Map.Entry<Integer, List<DisplayItem>> eldest) {
+                protected boolean removeEldestEntry(Map.Entry<Integer, List<ChatEntry>> eldest) {
                     return size() > MAX_CACHED_MESSAGES;
                 }
             });
@@ -65,7 +63,67 @@ public final class ShowcaseMessageHandler {
     private ShowcaseMessageHandler() {
     }
 
-    /** 单个物品的客户端展示数据。 */
+    /** 聊天占位对应的可渲染条目：单个物品，或一个可点击的容器入口。 */
+    public static abstract class ChatEntry {
+        private final SourceKind source;
+
+        protected ChatEntry(SourceKind source) {
+            this.source = source;
+        }
+
+        public SourceKind source() {
+            return source;
+        }
+    }
+
+    /** 单物品条目。 */
+    public static final class ItemEntry extends ChatEntry {
+        private final ItemStack stack;
+        private final String slotInfo;
+
+        ItemEntry(ItemStack stack, SourceKind source, String slotInfo) {
+            super(source);
+            this.stack = stack;
+            this.slotInfo = slotInfo;
+        }
+
+        public ItemStack stack() {
+            return stack;
+        }
+
+        public String slotInfo() {
+            return slotInfo;
+        }
+    }
+
+    /** 容器入口条目：点击打开快照查看 GUI。 */
+    public static final class ContainerEntry extends ChatEntry {
+        private final String title;
+        private final List<DisplayItem> items;
+        /** 入口图标（inv/ec 用 UI 容器图标；pack/curios 用组内第一个真实物品）。 */
+        private final ItemStack iconStack;
+
+        ContainerEntry(String title, List<DisplayItem> items, ItemStack iconStack, SourceKind source) {
+            super(source);
+            this.title = title;
+            this.items = items;
+            this.iconStack = iconStack;
+        }
+
+        public String title() {
+            return title;
+        }
+
+        public List<DisplayItem> items() {
+            return items;
+        }
+
+        public ItemStack iconStack() {
+            return iconStack;
+        }
+    }
+
+    /** 物品展示数据（GUI 与入口共用）。 */
     public static final class DisplayItem {
         private final ItemStack stack;
         private final SourceKind source;
@@ -112,64 +170,116 @@ public final class ShowcaseMessageHandler {
         }
 
         int messageId = nextMessageId++ % MAX_MESSAGE_ID;
-        List<DisplayItem> items = new ArrayList<>();
+        List<ChatEntry> entries = new ArrayList<>();
 
         MutableComponent line = Component.empty();
         line.append(Component.literal("<" + message.senderName() + "> ").withStyle(ChatFormatting.WHITE));
 
-        int itemIndex = 0;
+        int placeholderIndex = 0;
         for (ShowcaseSegment segment : message.segments()) {
-            if (itemIndex >= config.maxRenderedItems && !(segment instanceof TextSegment)) {
+            if (placeholderIndex >= config.maxRenderedItems && !(segment instanceof TextSegment)) {
                 break;
             }
             if (segment instanceof TextSegment) {
                 line.append(resolveText(((TextSegment) segment).payload()));
             } else if (segment instanceof ItemGroupSegment) {
                 ItemGroupSegment group = (ItemGroupSegment) segment;
-                if (group.title() != null && config.showSourceGroups) {
+                boolean isEntry = config.clickViewGui && group.source() != SourceKind.HAND;
+                if (group.title() != null && config.showSourceGroups && !isEntry) {
                     line.append(Component.literal(group.title().value()).withStyle(ChatFormatting.GOLD));
                 }
-                for (ItemSegment item : group.items()) {
-                    if (itemIndex >= config.maxRenderedItems) {
-                        break;
+                if (isEntry) {
+                    // 容器入口：一个占位 + 可点击文字，点击打开 GUI
+                    List<DisplayItem> displayItems = new ArrayList<>();
+                    ItemStack firstStack = ItemStack.EMPTY;
+                    for (ItemSegment item : group.items()) {
+                        DisplayItem display = toDisplayItem(item);
+                        displayItems.add(display);
+                        if (firstStack.isEmpty()) {
+                            firstStack = display.stack();
+                        }
                     }
-                    DisplayItem display = toDisplayItem(item);
+                    if (displayItems.isEmpty()) {
+                        continue;
+                    }
+                    String title = group.title() != null ? group.title().value()
+                            : defaultEntryTitle(group.source());
+                    ContainerEntry entry = new ContainerEntry(title, displayItems,
+                            entryIcon(group.source(), firstStack), group.source());
+                    int count = displayItems.size();
                     line.append(Component.literal(" "));
-                    line.append(placeholder(messageId, itemIndex));
+                    line.append(placeholder(messageId, placeholderIndex));
                     line.append(Component.literal("[").withStyle(ChatFormatting.DARK_GRAY));
-                    line.append(Component.literal(displayName(display, item)).withStyle(ChatFormatting.AQUA));
-                    if (item.count() > 1) {
-                        line.append(Component.literal(" x" + item.count()).withStyle(ChatFormatting.GRAY));
-                    }
+                    line.append(Component.literal(title).withStyle(ChatFormatting.AQUA));
+                    line.append(Component.literal(" x" + count).withStyle(ChatFormatting.YELLOW));
                     line.append(Component.literal("]").withStyle(ChatFormatting.DARK_GRAY));
-                    items.add(display);
-                    itemIndex++;
+                    entries.add(entry);
+                    placeholderIndex++;
+                } else {
+                    // 直接展示的物品（[i] 等）：图标 + 名称平铺
+                    for (ItemSegment item : group.items()) {
+                        if (placeholderIndex >= config.maxRenderedItems) {
+                            break;
+                        }
+                        DisplayItem display = toDisplayItem(item);
+                        line.append(Component.literal(" "));
+                        line.append(placeholder(messageId, placeholderIndex));
+                        line.append(Component.literal("[").withStyle(ChatFormatting.DARK_GRAY));
+                        line.append(Component.literal(displayName(display, item)).withStyle(ChatFormatting.AQUA));
+                        if (item.count() > 1) {
+                            line.append(Component.literal(" x" + item.count()).withStyle(ChatFormatting.GRAY));
+                        }
+                        line.append(Component.literal("]").withStyle(ChatFormatting.DARK_GRAY));
+                        entries.add(new ItemEntry(display.stack(), item.source(), item.slotInfo()));
+                        placeholderIndex++;
+                    }
                 }
             } else if (segment instanceof ItemSegment) {
                 ItemSegment item = (ItemSegment) segment;
-                if (itemIndex < config.maxRenderedItems) {
+                if (placeholderIndex < config.maxRenderedItems) {
                     DisplayItem display = toDisplayItem(item);
                     line.append(Component.literal(" "));
-                    line.append(placeholder(messageId, itemIndex));
+                    line.append(placeholder(messageId, placeholderIndex));
                     line.append(Component.literal("[").withStyle(ChatFormatting.DARK_GRAY));
                     line.append(Component.literal(displayName(display, item)).withStyle(ChatFormatting.AQUA));
                     if (item.count() > 1) {
                         line.append(Component.literal(" x" + item.count()).withStyle(ChatFormatting.GRAY));
                     }
                     line.append(Component.literal("]").withStyle(ChatFormatting.DARK_GRAY));
-                    items.add(display);
-                    itemIndex++;
+                    entries.add(new ItemEntry(display.stack(), item.source(), item.slotInfo()));
+                    placeholderIndex++;
                 }
             } else if (segment instanceof SectionSegment) {
-                line.append(Component.literal(((SectionSegment) segment).title().value())
-                        .withStyle(ChatFormatting.GOLD));
+                // 入口模式下分组标题并入入口显示，跳过
+                if (!config.clickViewGui) {
+                    line.append(Component.literal(((SectionSegment) segment).title().value())
+                            .withStyle(ChatFormatting.GOLD));
+                }
             }
         }
 
-        if (!items.isEmpty()) {
-            DATA.put(messageId, items);
+        if (!entries.isEmpty()) {
+            DATA.put(messageId, entries);
         }
         minecraft.gui.getChat().addMessage(line);
+    }
+
+    /** 入口默认标题（组无标题时）。 */
+    private static String defaultEntryTitle(SourceKind source) {
+        Component component = Component.translatable(source.titleKey());
+        return component.getString();
+    }
+
+    /** 入口图标：背包类宏用原版容器物品做 UI 按钮（仅 UI 入口，非物品展示逻辑），其余用组内第一个真实物品。 */
+    private static ItemStack entryIcon(SourceKind source, ItemStack firstStack) {
+        switch (source) {
+            case INVENTORY:
+                return new ItemStack(net.minecraft.world.item.Items.CHEST);
+            case ENDER_CHEST:
+                return new ItemStack(net.minecraft.world.item.Items.ENDER_CHEST);
+            default:
+                return firstStack;
+        }
     }
 
     private static DisplayItem toDisplayItem(ItemSegment item) {
@@ -235,9 +345,9 @@ public final class ShowcaseMessageHandler {
         return rgb & 0xFF;
     }
 
-    /** 渲染层查询物品数据；缓存已淘汰时返回 null（占位退化为空白）。 */
-    public static DisplayItem lookup(int messageId, int itemIndex) {
-        List<DisplayItem> list = DATA.get(messageId);
+    /** 渲染层查询条目；缓存已淘汰时返回 null（占位退化为空白）。 */
+    public static ChatEntry lookup(int messageId, int itemIndex) {
+        List<ChatEntry> list = DATA.get(messageId);
         if (list == null || itemIndex < 0 || itemIndex >= list.size()) {
             return null;
         }

@@ -4,9 +4,11 @@ import com.heihun.Itemshowcase.core.config.ItemShowcaseConfig;
 import com.heihun.Itemshowcase.core.logging.ItemShowcaseLogger;
 import com.heihun.Itemshowcase.forge1201.ShowcaseServices;
 import com.mojang.blaze3d.vertex.PoseStack;
+import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.Style;
 import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.world.item.ItemStack;
@@ -45,13 +47,13 @@ public final class ChatIconOverlay {
         final int x;
         final int y;
         final int size;
-        final ItemStack stack;
+        final ShowcaseMessageHandler.ChatEntry entry;
 
-        IconRect(int x, int y, int size, ItemStack stack) {
+        IconRect(int x, int y, int size, ShowcaseMessageHandler.ChatEntry entry) {
             this.x = x;
             this.y = y;
             this.size = size;
-            this.stack = stack;
+            this.entry = entry;
         }
     }
 
@@ -78,37 +80,64 @@ public final class ChatIconOverlay {
             return;
         }
         for (IconRun run : scan.icons) {
-            ShowcaseMessageHandler.DisplayItem item =
+            ShowcaseMessageHandler.ChatEntry entry =
                     ShowcaseMessageHandler.lookup(run.messageId, run.itemIndex);
-            if (item == null || item.stack().isEmpty()) {
+            if (entry == null) {
                 continue; // 缓存淘汰或解码失败：占位保留为空白
             }
             int iconSize = config.iconSize;
             // 图标在占位区内水平居中，左右留出间隙
             int iconX = x + run.startPx + Math.max(0, (run.runWidth - iconSize) / 2);
-            drawIcon(guiGraphics, font, item.stack(), iconX, y, config);
-            HOVERABLES.add(new IconRect(iconX, y - 3, iconSize, item.stack()));
+            if (entry instanceof ShowcaseMessageHandler.ContainerEntry) {
+                ShowcaseMessageHandler.ContainerEntry container = (ShowcaseMessageHandler.ContainerEntry) entry;
+                drawIcon(guiGraphics, font, container.iconStack(), iconX, y, config);
+            } else if (entry instanceof ShowcaseMessageHandler.ItemEntry) {
+                ShowcaseMessageHandler.ItemEntry item = (ShowcaseMessageHandler.ItemEntry) entry;
+                drawIcon(guiGraphics, font, item.stack(), iconX, y, config);
+            }
+            HOVERABLES.add(new IconRect(iconX, y - 3, iconSize, entry));
         }
     }
 
-    /** ChatScreenMixin 在 render 尾部调用：绘制原版物品 Tooltip。 */
+    /** ChatScreenMixin 在 render 尾部调用：绘制原版物品 Tooltip / 入口提示。 */
     public static void renderHoveredTooltip(GuiGraphics guiGraphics, Font font, int mouseX, int mouseY) {
         ItemShowcaseConfig.Client config = ShowcaseServices.clientConfig();
         if (!config.chatIconRendering || !config.showTooltip) {
             return;
         }
-        ItemStack hovered = findHovered(mouseX, mouseY);
-        if (hovered != null && !hovered.isEmpty()) {
-            // 原版物品 Tooltip（名称/耐久/附魔/Lore/组件提示全部由原版生成）
-            guiGraphics.renderTooltip(font, hovered, mouseX, mouseY);
+        IconRect hovered = findHovered(mouseX, mouseY);
+        if (hovered == null) {
+            return;
+        }
+        if (hovered.entry instanceof ShowcaseMessageHandler.ItemEntry) {
+            ItemStack stack = ((ShowcaseMessageHandler.ItemEntry) hovered.entry).stack();
+            if (!stack.isEmpty()) {
+                // 原版物品 Tooltip（名称/耐久/附魔/Lore/组件提示全部由原版生成）
+                guiGraphics.renderTooltip(font, stack, mouseX, mouseY);
+            }
+        } else if (hovered.entry instanceof ShowcaseMessageHandler.ContainerEntry) {
+            ShowcaseMessageHandler.ContainerEntry container = (ShowcaseMessageHandler.ContainerEntry) hovered.entry;
+            guiGraphics.renderComponentTooltip(font, java.util.List.of(
+                    Component.literal(container.title()).withStyle(ChatFormatting.AQUA),
+                    Component.translatable("itemshowcase.chat.click_to_view")
+                            .withStyle(ChatFormatting.GRAY)), mouseX, mouseY);
         }
     }
 
-    private static ItemStack findHovered(int mouseX, int mouseY) {
+    /** ChatScreenMixin 在 mouseClicked 时调用：命中可点击入口则返回该条目。 */
+    public static ShowcaseMessageHandler.ChatEntry findClicked(int mouseX, int mouseY) {
+        IconRect hovered = findHovered(mouseX, mouseY);
+        if (hovered != null && hovered.entry instanceof ShowcaseMessageHandler.ContainerEntry) {
+            return hovered.entry;
+        }
+        return null;
+    }
+
+    private static IconRect findHovered(int mouseX, int mouseY) {
         for (IconRect rect : HOVERABLES) {
             if (mouseX >= rect.x && mouseX < rect.x + rect.size
                     && mouseY >= rect.y && mouseY < rect.y + rect.size) {
-                return rect.stack;
+                return rect;
             }
         }
         return null;

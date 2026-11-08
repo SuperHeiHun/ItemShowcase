@@ -1,7 +1,7 @@
 {
   "key.categories.itemshowcase": "ItemShowcase",
   "key.itemshowcase.quick_show": "Quick Show Hovered Item (Ctrl+Enter)",
-  "itemshowcase.chat.rate_limited": "Showcase is too frequent, please wait a moment.",
+  "itemshowcase.chat.click_to_view": "Click to view", "itemshowcase.gui.snapshot_title": "%s · %s items", "itemshowcase.chat.rate_limited": "Showcase is too frequent, please wait a moment.",
   "itemshowcase.chat.quick_show_disabled": "Quick show is disabled on this server.",
   "itemshowcase.macro.item.title": "Holding",
   "itemshowcase.macro.item.disabled": "The [i] macro is disabled on this server.",

@@ -107,6 +107,12 @@ public interface ItemShowcaseConfig {
         /** 聊天行距附加量（像素）：缓解 16px 图标与 9px 行高的视觉拥挤，0 = 原版行距。 */
         public int extraLineSpacing = 3;
         /**
+         * 容器宏（[inv]/[ec]/[c]/[pack]）的聊天展示模式：
+         * true = 显示可点击入口，点击打开物品查看 GUI；
+         * false = 图标平铺在聊天中。
+         */
+        public boolean clickViewGui = true;
+        /**
          * Ctrl+Enter 快捷发送模式：DIRECT_SEND = 直接发送展示；
          * INSERT_MACRO = 在聊天输入框插入 [i] 占位。
          */
@@ -123,6 +129,7 @@ public interface ItemShowcaseConfig {
             iconSpacing = 2;
             maxRenderedItems = 54;
             extraLineSpacing = 3;
+            clickViewGui = true;
             quickShowMode = "DIRECT_SEND";
         }
 
