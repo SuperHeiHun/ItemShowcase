@@ -1,9 +1,6 @@
 package com.heihun.Itemshowcase.neoforge1211.network;
 
 import com.heihun.Itemshowcase.core.protocol.ClientCapabilities;
-import com.heihun.Itemshowcase.core.protocol.Envelope;
-import com.heihun.Itemshowcase.core.protocol.EnvelopeCodec;
-import com.heihun.Itemshowcase.core.protocol.PacketType;
 import com.heihun.Itemshowcase.neoforge1211.server.CapabilityTracker;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.server.level.ServerPlayer;
@@ -44,10 +41,9 @@ public final class NeoNetwork {
                 ShowcaseMessagePayload::handle);
     }
 
-    /** 服务端：向单个接收者发送结构化展示包（Envelope 包裹）。 */
+    /** 服务端：向单个接收者发送结构化展示包（payload 已是 ShowcaseMessage 线格式裸字节）。 */
     public static void sendShowcaseMessage(ServerPlayer receiver, byte[] showcasePayload) {
-        Envelope envelope = Envelope.message(PacketType.SHOWCASE_MESSAGE, showcasePayload);
-        PacketDistributor.sendToPlayer(receiver, new ShowcaseMessagePayload(EnvelopeCodec.encode(envelope)));
+        PacketDistributor.sendToPlayer(receiver, new ShowcaseMessagePayload(showcasePayload));
     }
 
     /** 客户端：发送能力握手（unit codec 要求复用单例实例，不可 new）。 */
