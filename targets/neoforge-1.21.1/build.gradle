@@ -63,6 +63,9 @@ dependencies {
     // common-core 通过 settings.gradle 的 Composite Build 以源码参与构建
     implementation 'com.heihun.Itemshowcase:itemshowcase-common-core:1.0.0'
 
+    // MixinExtras（@WrapOperation）：编译期引用，运行时由 NeoForge 内置提供
+    compileOnly "io.github.llamalad7:mixinextras-common:0.4.1"
+
     // ---- 可选集成（运行时检测，缺失时安全降级；1.21.1 全部为 Mojang 官方映射，无需 deobf） ----
     compileOnly "top.theillusivec4.curios:curios-neoforge:${curios_version}:api"
     runtimeOnly "top.theillusivec4.curios:curios-neoforge:${curios_version}"
