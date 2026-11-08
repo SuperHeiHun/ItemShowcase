@@ -4,7 +4,6 @@ import com.heihun.Itemshowcase.core.ItemShowcaseConstants;
 import com.heihun.Itemshowcase.core.protocol.ItemStackPayload;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtIo;
-import net.minecraft.nbt.NbtAccounter;
 import net.minecraft.world.item.ItemStack;
 
 import java.io.ByteArrayInputStream;
@@ -49,8 +48,7 @@ public final class ItemStackCodec {
             throw new IllegalArgumentException("方言不匹配: " + payload.dialect() + " (期望 nbt1201)");
         }
         try {
-            CompoundTag tag = NbtIo.readCompressed(
-                    new ByteArrayInputStream(payload.data()), new NbtAccounter(2097152L));
+            CompoundTag tag = NbtIo.readCompressed(new ByteArrayInputStream(payload.data()));
             ItemStack stack = ItemStack.of(tag);
             if (stack.isEmpty()) {
                 return ItemStack.EMPTY;

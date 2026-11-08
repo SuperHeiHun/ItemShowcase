@@ -16,16 +16,16 @@
 
 ## 阶段二：聊天展示 MVP（Forge 1.20.1）
 
-- [ ] minecraft-common 适配接口层
-- [ ] Forge 1.20.1 目标工程（ForgeGradle 6 + Gradle 8.8 + Java 17）
-- [ ] 服务端聊天事件接入 + 宏解析 + 真实库存读取（主手 / 背包 / 盔甲 / 副手 / 末影箱）
-- [ ] 网络通道 + 结构化 ShowcaseMessage 下发 + 原版客户端回退消息
-- [ ] 客户端握手（能力协商）
-- [ ] 聊天物品图标渲染（ItemRenderer，数量 / 耐久 / 附魔光效）+ 原版 Tooltip
-- [ ] 鼠标悬停映射、点击兼容、多行 / 滚动 / 缩放处理
-- [ ] Ctrl+Enter 快捷发送（服务端菜单 + 槽位校验）
-- [ ] en_us.json / zh_cn.json
-- [ ] Forge 1.20.1 构建 + 客户端/服务端启动测试
+- [x] Forge 1.20.1 目标工程（ForgeGradle 6 + Gradle 8.8 + Java 17 + MixinGradle）
+- [x] 服务端聊天事件接入 + 宏解析 + 真实库存读取（主手 / 背包 / 盔甲 / 副手 / 末影箱）
+- [x] 网络通道 itemshowcase:main（握手 / 快捷展示请求 / 结构化消息）+ 原版客户端回退消息
+- [x] 客户端握手（能力协商，避免双发）
+- [x] 聊天物品图标渲染（原版 renderItem：数量 / 耐久 / 附魔光效）+ 原版 Tooltip
+- [x] 鼠标悬停映射（Mixin 注入范围仅 ChatComponent.render 头部 + 行 drawString + ChatScreen.render 尾部）
+- [x] Ctrl+Enter 快捷发送（服务端菜单 + 槽位归属校验，客户端只提交菜单ID+槽位ID）
+- [x] en_us.json / zh_cn.json
+- [x] Forge 1.20.1 构建（BUILD SUCCESSFUL，jar 含合并后的 common-core）
+- [ ] 客户端/服务端启动测试记录（进行中）
 
 ## 阶段三：饰品和背包
 

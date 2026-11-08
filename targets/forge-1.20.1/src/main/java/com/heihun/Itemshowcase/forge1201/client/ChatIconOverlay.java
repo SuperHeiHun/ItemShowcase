@@ -77,7 +77,7 @@ public final class ChatIconOverlay {
         if (scan.icons.isEmpty()) {
             return;
         }
-        for (LineScan.IconRun run : scan.icons) {
+        for (IconRun run : scan.icons) {
             ShowcaseMessageHandler.DisplayItem item =
                     ShowcaseMessageHandler.lookup(run.messageId, run.itemIndex);
             if (item == null || item.stack().isEmpty()) {
@@ -165,69 +165,93 @@ public final class ChatIconOverlay {
     /**
      * 扫描 FormattedCharSequence：按“相同样式的连续字符段”重建文本，
      * 检测占位 run（全是空格、长度 >= 4、颜色为编码颜色）。
-     * 段宽度用原版 font.width(String, Style) 度量，保证与文本布局一致。
+     * 段的屏幕像素起点用 StringSplitter 对“前缀子序列”的度量计算——
+     * 前缀包含原样式，与聊天布局的宽度计算完全一致。
      */
     private static LineScan scanLine(Font font, FormattedCharSequence line) {
         LineScan scan = new LineScan();
-        List<Run> runs = new ArrayList<>();
-        StringBuilder current = new StringBuilder();
-        Style currentStyle = null;
-
-        int[] startPx = {0};
+        List<IndexedChar> chars = new ArrayList<>();
         line.accept((index, style, codePoint) -> {
-            if (!style.equals(currentStyle) && current.length() > 0) {
-                runs.add(new Run(current.toString(), currentStyle, startPx[0]));
-                startPx[0] += font.width(current.toString(), currentStyle);
-                current.setLength(0);
-            }
-            currentStyle = style;
-            current.append(codePoint == 0 ? ' ' : Character.toChars(codePoint));
+            chars.add(new IndexedChar(index, style, codePoint == 0 ? ' ' : codePoint));
             return true;
         });
-        if (current.length() > 0) {
-            runs.add(new Run(current.toString(), currentStyle, startPx[0]));
+        if (chars.isEmpty()) {
+            return scan;
         }
+        net.minecraft.client.StringSplitter splitter = font.getSplitter();
 
-        for (Run run : runs) {
-            if (run.text == null || run.text.isEmpty() || run.style == null) {
-                continue;
+        StringBuilder current = new StringBuilder();
+        Style currentStyle = null;
+        int runStartIndex = 0;
+
+        for (int i = 0; i <= chars.size(); i++) {
+            IndexedChar ch = i < chars.size() ? chars.get(i) : null;
+            boolean styleChanged = ch == null
+                    || !java.util.Objects.equals(ch.style(), currentStyle);
+            if (styleChanged && current.length() > 0) {
+                flushRun(scan, splitter, line, current, currentStyle, runStartIndex);
+                current.setLength(0);
+                runStartIndex = ch == null ? i : ch.index();
             }
-            int colorRgb = run.style.getColor() != null ? run.style.getColor().getValue() : -1;
-            if (!ShowcaseMessageHandler.isEncodedColor(colorRgb)) {
-                continue;
-            }
-            // 占位 run：至少 4 个空格
-            if (run.text.length() < ShowcaseMessageHandler.PLACEHOLDER_SPACES) {
-                continue;
-            }
-            boolean allSpaces = true;
-            for (int i = 0; i < run.text.length(); i++) {
-                if (run.text.charAt(i) != ' ') {
-                    allSpaces = false;
-                    break;
-                }
-            }
-            if (!allSpaces) {
-                continue;
-            }
-            int id = ShowcaseMessageHandler.decodeId(colorRgb);
-            int index = ShowcaseMessageHandler.decodeIndex(colorRgb);
-            if (ShowcaseMessageHandler.lookup(id, index) != null) {
-                scan.icons.add(new IconRun(run.startPx, id, index));
+            if (ch != null) {
+                currentStyle = ch.style();
+                current.appendCodePoint(ch.codePoint());
             }
         }
         return scan;
     }
 
-    private static final class Run {
-        final String text;
-        final Style style;
-        final int startPx;
+    /** 检查一个文本段是否为物品占位 run，是则登记图标。 */
+    private static void flushRun(LineScan scan, net.minecraft.client.StringSplitter splitter,
+                                 FormattedCharSequence line, StringBuilder text, Style style, int startIndex) {
+        if (style == null || text.length() < ShowcaseMessageHandler.PLACEHOLDER_SPACES) {
+            return;
+        }
+        int colorRgb = style.getColor() != null ? style.getColor().getValue() : -1;
+        if (!ShowcaseMessageHandler.isEncodedColor(colorRgb)) {
+            return;
+        }
+        for (int i = 0; i < text.length(); i++) {
+            if (text.charAt(i) != ' ') {
+                return;
+            }
+        }
+        int id = ShowcaseMessageHandler.decodeId(colorRgb);
+        int index = ShowcaseMessageHandler.decodeIndex(colorRgb);
+        if (ShowcaseMessageHandler.lookup(id, index) == null) {
+            return; // 缓存已淘汰
+        }
+        // 前缀像素宽度：度量 [0, startIndex) 的子序列
+        FormattedCharSequence prefix = consumer ->
+                line.accept((idx, charStyle, codePoint) ->
+                        idx < startIndex ? consumer.accept(idx, charStyle, codePoint) : true);
+        int startPx = net.minecraft.util.Mth.floor(splitter.stringWidth(prefix));
+        scan.icons.add(new IconRun(startPx, id, index));
+    }
 
-        Run(String text, Style style, int startPx) {
-            this.text = text;
+    /** 行内字符（含样式与行内索引）。 */
+    private static final class IndexedChar {
+        final int index;
+        final Style style;
+        final int codePoint;
+
+        IndexedChar(int index, Style style, int codePoint) {
+            this.index = index;
             this.style = style;
-            this.startPx = startPx;
+            this.codePoint = codePoint;
+        }
+
+        /** 行内索引。 */
+        int index() {
+            return index;
+        }
+
+        Style style() {
+            return style;
+        }
+
+        int codePoint() {
+            return codePoint;
         }
     }
 }

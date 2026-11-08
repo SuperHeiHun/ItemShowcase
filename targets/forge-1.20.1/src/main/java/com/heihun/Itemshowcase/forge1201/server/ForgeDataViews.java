@@ -60,8 +60,8 @@ public final class ForgeDataViews implements PlayerDataViews {
 
     @Override
     public List<SlotItem> getEnderChest() {
-        // ServerPlayer.getInventoryEnderChest() 返回服务端真实末影箱数据
-        net.minecraft.world.inventory.PlayerEnderChestInventory enderChest = player.getInventoryEnderChest();
+        // Player.getEnderChestInventory()：ServerPlayer 上为服务端真实末影箱数据
+        net.minecraft.world.inventory.PlayerEnderChestContainer enderChest = player.getEnderChestInventory();
         List<SlotItem> result = new ArrayList<>(enderChest.getContainerSize());
         for (int i = 0; i < enderChest.getContainerSize(); i++) {
             result.add(slot(enderChest.getItem(i), i, SourceKind.ENDER_CHEST));

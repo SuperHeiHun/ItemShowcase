@@ -70,7 +70,7 @@ public final class FallbackTextBuilder {
             ItemStack stack = ItemStackCodec.decode(item.item());
             if (!stack.isEmpty()) {
                 component.withStyle(style -> style.withHoverEvent(
-                        new HoverEvent(HoverEvent.Action.SHOW_ITEM, new HoverEvent.ItemInfo(stack))));
+                        new HoverEvent(HoverEvent.Action.SHOW_ITEM, new HoverEvent.ItemStackInfo(stack))));
             }
         } catch (RuntimeException decodeFailure) {
             // 解码失败时保留纯文本名称，消息不至于不可读

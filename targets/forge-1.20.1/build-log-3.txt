@@ -1,0 +1,135 @@
+﻿Active code page: 65001
+To honour the JVM settings for this build a single-use Daemon process will be forked. For more on this, please refer to https://docs.gradle.org/8.8/userguide/gradle_daemon.html#sec:disabling_the_daemon in the Gradle documentation.
+Daemon will be stopped at the end of the build 
+
+> Configure project :
+MixinGradle is skipping eclipse integration, extension not found
+Neither the 'eclipse' nor the 'idea' plugins were found, but IDE resource copy has been enabled.
+
+> Task :common-core:compileJava UP-TO-DATE
+> Task :downloadMcpConfig
+> Task :common-core:processResources NO-SOURCE
+> Task :common-core:classes UP-TO-DATE
+> Task :extractSrg UP-TO-DATE
+> Task :createMcpToSrg UP-TO-DATE
+> Task :common-core:jar UP-TO-DATE
+> Task :processResources UP-TO-DATE
+
+> Task :compileJava
+.\gradlew.bat : 注: SpongePowered MIXIN Annotation Processor Version=0.8.5 (MixinGradle Version=0.7)
+所在位置 行:1 字符: 1
++ .\gradlew.bat --no-daemon build 2>&1 | Out-File -FilePath build-log-3 ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (注: SpongePowere...le Version=0.7):String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+注: Supported obfuscation types: ObfuscationServiceMCP supports [notch] ObfuscationServiceFG3 supports [searge]
+注: Loading searge mappings from E:\Test\mod\ItemShowcase\targets\forge-1.20.1\build\createMcpToSrg\output.tsrg
+E:\Test\mod\ItemShowcase\targets\forge-1.20.1\src\main\java\com\heihun\Itemshowcase\forge1201\mixin\ChatComponentMixin.
+java:35: 警告: Unable to locate method mapping for @At(INVOKE.<target>) 'Lnet/minecraft/client/gui/GuiGraphics;drawString
+(Lnet/minecraft/client/gui/Font;Lnet/minecraft/client/gui/FormattedCharSequence;IIIZ)I'
+    @Redirect(
+    ^
+注: Writing refmap to E:\Test\mod\ItemShowcase\targets\forge-1.20.1\build\tmp\compileJava\compileJava-refmap.json
+注: Writing refmap to E:\Test\mod\ItemShowcase\targets\forge-1.20.1\build\tmp\compileJava\compileJava-refmap.json
+注: Writing searge composite mappings to E:\Test\mod\ItemShowcase\targets\forge-1.20.1\build\tmp\compileJava\compileJava
+-mappings.tsrg
+注: Writing refmap to E:\Test\mod\ItemShowcase\targets\forge-1.20.1\build\tmp\compileJava\compileJava-refmap.json
+注: Writing refmap to E:\Test\mod\ItemShowcase\targets\forge-1.20.1\build\tmp\compileJava\compileJava-refmap.json
+注: Writing searge composite mappings to E:\Test\mod\ItemShowcase\targets\forge-1.20.1\build\tmp\compileJava\compileJava
+-mappings.tsrg
+E:\Test\mod\ItemShowcase\targets\forge-1.20.1\src\main\java\com\heihun\Itemshowcase\forge1201\client\ChatIconOverlay.ja
+va:80: 错误: 找不到符号
+        for (LineScan.IconRun run : scan.icons) {
+                     ^
+  符号:   类 IconRun
+  位置: 类 LineScan
+E:\Test\mod\ItemShowcase\targets\forge-1.20.1\src\main\java\com\heihun\Itemshowcase\forge1201\client\ChatIconOverlay.ja
+va:180: 错误: 对于width(String,Style), 找不到合适的方法
+                startPx[0] += font.width(current.toString(), currentStyle);
+                                  ^
+    方法 Font.width(String)不适用
+      (实际参数列表和形式参数列表长度不同)
+    方法 Font.width(FormattedText)不适用
+      (实际参数列表和形式参数列表长度不同)
+    方法 Font.width(FormattedCharSequence)不适用
+      (实际参数列表和形式参数列表长度不同)
+E:\Test\mod\ItemShowcase\targets\forge-1.20.1\src\main\java\com\heihun\Itemshowcase\forge1201\client\ClientQuickShow.ja
+va:60: 错误: 找不到符号
+            if (!com.mojang.blaze3d.platform.Screen.hasControlDown()) {
+                                            ^
+  符号:   类 Screen
+  位置: 程序包 com.mojang.blaze3d.platform
+E:\Test\mod\ItemShowcase\targets\forge-1.20.1\src\main\java\com\heihun\Itemshowcase\forge1201\client\ClientQuickShow.ja
+va:73: 错误: 程序包ShowcaseNetwork不存在
+            ShowcaseNetwork.CHANNEL.sendToServer(
+                           ^
+E:\Test\mod\ItemShowcase\targets\forge-1.20.1\src\main\java\com\heihun\Itemshowcase\forge1201\server\FallbackTextBuilde
+r.java:73: 错误: 找不到符号
+                        new HoverEvent(HoverEvent.Action.SHOW_ITEM, new HoverEvent.ItemInfo(stack))));
+                                                                                  ^
+  符号:   类 ItemInfo
+  位置: 类 HoverEvent
+E:\Test\mod\ItemShowcase\targets\forge-1.20.1\src\main\java\com\heihun\Itemshowcase\forge1201\server\ForgeDataViews.jav
+a:55: 错误: 找不到符号
+            result.add(slot(inventory.armor.get(i), i, SourceKind.ARMOR));
+                                                                 ^
+  符号:   变量 ARMOR
+  位置: 类 SourceKind
+E:\Test\mod\ItemShowcase\targets\forge-1.20.1\src\main\java\com\heihun\Itemshowcase\forge1201\server\ForgeDataViews.jav
+a:57: 错误: 找不到符号
+        result.add(slot(inventory.offhand.get(0), 0, SourceKind.OFFHAND));
+                                                               ^
+  符号:   变量 OFFHAND
+  位置: 类 SourceKind
+E:\Test\mod\ItemShowcase\targets\forge-1.20.1\src\main\java\com\heihun\Itemshowcase\forge1201\server\ForgeDataViews.jav
+a:64: 错误: 找不到符号
+        net.minecraft.world.inventory.PlayerEnderChestInventory enderChest = player.getInventoryEnderChest();
+                                     ^
+  符号:   类 PlayerEnderChestInventory
+  位置: 程序包 net.minecraft.world.inventory
+E:\Test\mod\ItemShowcase\targets\forge-1.20.1\src\main\java\com\heihun\Itemshowcase\forge1201\server\ForgeDataViews.jav
+a:64: 错误: 找不到符号
+        net.minecraft.world.inventory.PlayerEnderChestInventory enderChest = player.getInventoryEnderChest();
+                                                                                   ^
+  符号:   方法 getInventoryEnderChest()
+  位置: 类型为ServerPlayer的变量 player
+E:\Test\mod\ItemShowcase\targets\forge-1.20.1\src\main\java\com\heihun\Itemshowcase\forge1201\server\ItemStackCodec.jav
+a:52: 错误: 对于readCompressed(ByteArrayInputStream,NbtAccounter), 找不到合适的方法
+            CompoundTag tag = NbtIo.readCompressed(
+                                   ^
+    方法 NbtIo.readCompressed(File)不适用
+      (实际参数列表和形式参数列表长度不同)
+    方法 NbtIo.readCompressed(InputStream)不适用
+      (实际参数列表和形式参数列表长度不同)
+E:\Test\mod\ItemShowcase\targets\forge-1.20.1\src\main\java\com\heihun\Itemshowcase\forge1201\server\QuickShowHandler.j
+ava:120: 错误: 找不到符号
+            return com.heihun.Itemshowcase.core.model.SourceKind.ARMOR;
+                                                                ^
+  符号:   变量 ARMOR
+  位置: 类 SourceKind
+E:\Test\mod\ItemShowcase\targets\forge-1.20.1\src\main\java\com\heihun\Itemshowcase\forge1201\server\QuickShowHandler.j
+ava:122: 错误: 找不到符号
+        return com.heihun.Itemshowcase.core.model.SourceKind.OFFHAND;
+                                                            ^
+  符号:   变量 OFFHAND
+  位置: 类 SourceKind
+注: 某些输入文件使用或覆盖了已过时的 API。
+注: 有关详细信息, 请使用 -Xlint:deprecation 重新编译。
+12 个错误
+1 个警告
+
+FAILURE: Build failed with an exception.
+
+* What went wrong:
+Execution failed for task ':compileJava'.
+> Compilation failed; see the compiler error output for details.
+
+* Try:
+> Run with --info option to get more log output.
+> Run with --scan to get full insights.
+
+BUILD FAILED in 17s
+
+> Task :compileJava FAILED
+7 actionable tasks: 2 executed, 5 up-to-date

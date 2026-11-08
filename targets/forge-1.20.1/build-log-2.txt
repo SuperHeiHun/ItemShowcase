@@ -1,0 +1,93 @@
+﻿Active code page: 65001
+To honour the JVM settings for this build a single-use Daemon process will be forked. For more on this, please refer to https://docs.gradle.org/8.8/userguide/gradle_daemon.html#sec:disabling_the_daemon in the Gradle documentation.
+Daemon will be stopped at the end of the build 
+
+> Configure project :
+MixinGradle is skipping eclipse integration, extension not found
+Neither the 'eclipse' nor the 'idea' plugins were found, but IDE resource copy has been enabled.
+
+> Task :downloadMcpConfig
+> Task :extractSrg
+
+> Task :common-core:compileJava
+.\gradlew.bat : 警告: [options] 源值 8 已过时，将在未来发行版中删除
+所在位置 行:1 字符: 1
++ .\gradlew.bat --no-daemon build 2>&1 | Out-File -FilePath build-log-2 ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (警告: [options] 源值 8 已过时，将在未来发行版中删除:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+警告: [options] 目标值 8 已过时，将在未来发行版中删除
+警告: [options] 要隐藏有关已过时选项的警告, 请使用 -Xlint:-options。
+
+> Task :createMcpToSrg
+> Task :processResources UP-TO-DATE
+> Task :configureReobfTaskForReobfJar
+> Task :configureReobfTaskForReobfJarJar
+> Task :processTestResources NO-SOURCE
+
+> Task :common-core:compileJava
+3 个警告
+
+> Task :common-core:processResources NO-SOURCE
+> Task :common-core:classes
+> Task :common-core:jar
+
+> Task :compileJava
+注: SpongePowered MIXIN Annotation Processor Version=0.8.5 (MixinGradle Version=0.7)
+注: Supported obfuscation types: ObfuscationServiceMCP supports [notch] ObfuscationServiceFG3 supports [searge]
+E:\Test\mod\ItemShowcase\targets\forge-1.20.1\src\main\java\com\heihun\Itemshowcase\forge1201\mixin\ChatComponentMixin.
+java:29: 警告: Cannot find target method "render(Lnet/minecraft/client/gui/GuiGraphics;IIIZ)V" for @Inject.method="render
+(Lnet/minecraft/client/gui/GuiGraphics;IIIZ)V" in net.minecraft.client.gui.components.ChatComponent
+    @Inject(method = "render(Lnet/minecraft/client/gui/GuiGraphics;IIIZ)V", at = @At("HEAD"))
+    ^
+注: Loading searge mappings from E:\Test\mod\ItemShowcase\targets\forge-1.20.1\build\createMcpToSrg\output.tsrg
+E:\Test\mod\ItemShowcase\targets\forge-1.20.1\src\main\java\com\heihun\Itemshowcase\forge1201\mixin\ChatComponentMixin.
+java:29: 错误: Unable to locate obfuscation mapping for @Inject target render
+    @Inject(method = "render(Lnet/minecraft/client/gui/GuiGraphics;IIIZ)V", at = @At("HEAD"))
+    ^
+E:\Test\mod\ItemShowcase\targets\forge-1.20.1\src\main\java\com\heihun\Itemshowcase\forge1201\mixin\ChatComponentMixin.
+java:35: 警告: Cannot find target method "render(Lnet/minecraft/client/gui/GuiGraphics;IIIZ)V" for @Redirect.method="rend
+er(Lnet/minecraft/client/gui/GuiGraphics;IIIZ)V" in net.minecraft.client.gui.components.ChatComponent
+    @Redirect(
+    ^
+E:\Test\mod\ItemShowcase\targets\forge-1.20.1\src\main\java\com\heihun\Itemshowcase\forge1201\mixin\ChatComponentMixin.
+java:35: 警告: Unable to locate method mapping for @At(INVOKE.<target>) 'Lnet/minecraft/client/gui/GuiGraphics;drawString
+(Lnet/minecraft/client/gui/Font;Lnet/minecraft/client/gui/FormattedCharSequence;IIIZ)I'
+    @Redirect(
+    ^
+E:\Test\mod\ItemShowcase\targets\forge-1.20.1\src\main\java\com\heihun\Itemshowcase\forge1201\mixin\ChatComponentMixin.
+java:35: 错误: Unable to locate obfuscation mapping for @Redirect target render
+    @Redirect(
+    ^
+注: Writing refmap to E:\Test\mod\ItemShowcase\targets\forge-1.20.1\build\tmp\compileJava\compileJava-refmap.json
+注: Writing refmap to E:\Test\mod\ItemShowcase\targets\forge-1.20.1\build\tmp\compileJava\compileJava-refmap.json
+注: Writing searge composite mappings to E:\Test\mod\ItemShowcase\targets\forge-1.20.1\build\tmp\compileJava\compileJava
+-mappings.tsrg
+E:\Test\mod\ItemShowcase\targets\forge-1.20.1\src\main\java\com\heihun\Itemshowcase\forge1201\client\ClientQuickShow.ja
+va:55: 错误: 找不到符号
+        public static void onKeyPressed(ScreenEvent.KeyboardKeyPressedEvent.Pre event) {
+                                                   ^
+  符号:   类 KeyboardKeyPressedEvent
+  位置: 类 ScreenEvent
+注: Writing refmap to E:\Test\mod\ItemShowcase\targets\forge-1.20.1\build\tmp\compileJava\compileJava-refmap.json
+注: Writing refmap to E:\Test\mod\ItemShowcase\targets\forge-1.20.1\build\tmp\compileJava\compileJava-refmap.json
+注: Writing searge composite mappings to E:\Test\mod\ItemShowcase\targets\forge-1.20.1\build\tmp\compileJava\compileJava
+-mappings.tsrg
+3 个错误
+3 个警告
+
+> Task :compileJava FAILED
+
+FAILURE: Build failed with an exception.
+
+* What went wrong:
+Execution failed for task ':compileJava'.
+> Compilation failed; see the compiler error output for details.
+
+* Try:
+> Run with --info option to get more log output.
+> Run with --scan to get full insights.
+
+BUILD FAILED in 55s
+9 actionable tasks: 8 executed, 1 up-to-date

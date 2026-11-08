@@ -1,0 +1,71 @@
+﻿Active code page: 65001
+To honour the JVM settings for this build a single-use Daemon process will be forked. For more on this, please refer to https://docs.gradle.org/8.8/userguide/gradle_daemon.html#sec:disabling_the_daemon in the Gradle documentation.
+Daemon will be stopped at the end of the build 
+
+> Configure project :
+Neither the 'eclipse' nor the 'idea' plugins were found, but IDE resource copy has been enabled.
+Setting up MCP environment
+Initializing steps
+Executing steps
+ > Running 'downloadManifest'
+ > Running 'downloadJson'
+ > Running 'downloadClient'
+ > Running 'downloadServer'
+ > Running 'extractServer'
+ > Running 'downloadClientMappings'
+ > Running 'mergeMappings'
+ > Running 'stripClient'
+ > Running 'stripServer'
+ > Running 'merge'
+ > Running 'listLibraries'
+ > Running 'rename'
+Stopping at requested step: E:\GradleCache\caches\forge_gradle\mcp_repo\de\oceanlabs\mcp\mcp_config\1.20.1-20230612.114412\joined\rename\output.jar
+.\gradlew.bat : [13:14:50] [main/INFO]: Writing debug log file accesstransform.log
+所在位置 行:1 字符: 1
++ .\gradlew.bat --no-daemon build 2>&1 | Out-File -FilePath build-log-1 ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: ([13:14:50] [mai...sstransform.log:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+[13:14:50] [main/INFO]: Access Transformer processor running version 8.2.14
+[13:14:50] [main/INFO]: Command line arguments [--inJar, E:\GradleCache\caches\forge_gradle\minecraft_user_repo\net\min
+ecraftforge\forge\1.20.1-47.3.0\forge-1.20.1-47.3.0-injected.jar, --outJar, E:\GradleCache\caches\forge_gradle\minecraf
+t_user_repo\net\minecraftforge\forge\1.20.1-47.3.0_mapped_official_1.20.1\forge-1.20.1-47.3.0_mapped_official_1.20.1.ja
+r, --logFile, accesstransform.log, --atFile, E:\Test\mod\ItemShowcase\targets\forge-1.20.1\build\_atJar_4\parent_at.cfg
+]
+[13:14:50] [main/INFO]: Reading from E:\GradleCache\caches\forge_gradle\minecraft_user_repo\net\minecraftforge\forge\1.
+20.1-47.3.0\forge-1.20.1-47.3.0-injected.jar
+[13:14:50] [main/INFO]: Writing to E:\GradleCache\caches\forge_gradle\minecraft_user_repo\net\minecraftforge\forge\1.20
+.1-47.3.0_mapped_official_1.20.1\forge-1.20.1-47.3.0_mapped_official_1.20.1.jar
+[13:14:50] [main/INFO]: Transformer file E:\Test\mod\ItemShowcase\targets\forge-1.20.1\build\_atJar_4\parent_at.cfg
+[13:14:50] [main/WARN]: Found existing output jar E:\GradleCache\caches\forge_gradle\minecraft_user_repo\net\minecraftf
+orge\forge\1.20.1-47.3.0_mapped_official_1.20.1\forge-1.20.1-47.3.0_mapped_official_1.20.1.jar, overwriting
+[13:14:56] [main/INFO]: JAR transformation complete E:\GradleCache\caches\forge_gradle\minecraft_user_repo\net\minecraf
+tforge\forge\1.20.1-47.3.0_mapped_official_1.20.1\forge-1.20.1-47.3.0_mapped_official_1.20.1.jar
+Creating SRG -> MCP TSRG
+
+> Task :common-core:compileJava FAILED
+> Task :processResources
+
+FAILURE: Build failed with an exception.
+
+* What went wrong:
+Execution failed for task ':common-core:compileJava'.
+> Error while evaluating property 'javaCompiler' of task ':common-core:compileJava'.
+   > Failed to calculate the value of task ':common-core:compileJava' property 'javaCompiler'.
+      > Cannot find a Java installation on your machine matching this tasks requirements: {languageVersion=21, vendor=a
+ny, implementation=vendor-specific} for WINDOWS on x86_64.
+         > No locally installed toolchains match and toolchain download repositories have not been configured.
+
+* Try:
+> Learn more about toolchain auto-detection at https://docs.gradle.org/8.8/userguide/toolchains.html#sec:auto_detection
+.
+> Learn more about toolchain repositories at https://docs.gradle.org/8.8/userguide/toolchains.html#sub:download_reposit
+ories.
+> Run with --stacktrace option to get the stack trace.
+> Run with --info or --debug option to get more log output.
+> Run with --scan to get full insights.
+2 actionable tasks: 2 executed
+> Get more help at https://help.gradle.org.
+
+BUILD FAILED in 2m 41s

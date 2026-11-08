@@ -1,6 +1,7 @@
 package com.heihun.Itemshowcase.forge1201.client;
 
 import com.heihun.Itemshowcase.forge1201.ItemShowcaseMod;
+import com.heihun.Itemshowcase.forge1201.network.ShowcaseNetwork;
 import com.mojang.blaze3d.platform.InputConstants;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
@@ -52,12 +53,12 @@ public final class ClientQuickShow {
     public static final class KeyHandler {
 
         @SubscribeEvent
-        public static void onKeyPressed(ScreenEvent.KeyboardKeyPressedEvent.Pre event) {
+        public static void onKeyPressed(ScreenEvent.KeyPressed.Pre event) {
             if (!(event.getScreen() instanceof AbstractContainerScreen<?> containerScreen)) {
                 return;
             }
             // 默认 Ctrl+Enter；支持在 Controls 中重新绑定
-            if (!com.mojang.blaze3d.platform.Screen.hasControlDown()) {
+            if (!net.minecraft.client.gui.screens.Screen.hasControlDown()) {
                 return;
             }
             if (!QUICK_SHOW.matches(event.getKeyCode(), event.getScanCode())) {

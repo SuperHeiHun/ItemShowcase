@@ -1,0 +1,80 @@
+﻿Active code page: 65001
+To honour the JVM settings for this build a single-use Daemon process will be forked. For more on this, please refer to https://docs.gradle.org/8.8/userguide/gradle_daemon.html#sec:disabling_the_daemon in the Gradle documentation.
+Daemon will be stopped at the end of the build 
+
+> Configure project :
+MixinGradle is skipping eclipse integration, extension not found
+Neither the 'eclipse' nor the 'idea' plugins were found, but IDE resource copy has been enabled.
+
+> Task :downloadMcpConfig
+> Task :extractSrg UP-TO-DATE
+> Task :createMcpToSrg UP-TO-DATE
+> Task :processResources UP-TO-DATE
+> Task :configureReobfTaskForReobfJar
+> Task :configureReobfTaskForReobfJarJar
+> Task :processTestResources NO-SOURCE
+
+> Task :common-core:compileJava
+.\gradlew.bat : 警告: [options] 源值 8 已过时，将在未来发行版中删除
+所在位置 行:1 字符: 1
++ .\gradlew.bat --no-daemon build 2>&1 | Out-File -FilePath build-log-4 ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (警告: [options] 源值 8 已过时，将在未来发行版中删除:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+警告: [options] 目标值 8 已过时，将在未来发行版中删除
+警告: [options] 要隐藏有关已过时选项的警告, 请使用 -Xlint:-options。
+3 个警告
+
+> Task :common-core:processResources NO-SOURCE
+> Task :common-core:classes
+> Task :common-core:jar
+
+> Task :compileJava
+注: SpongePowered MIXIN Annotation Processor Version=0.8.5 (MixinGradle Version=0.7)
+注: Supported obfuscation types: ObfuscationServiceMCP supports [notch] ObfuscationServiceFG3 supports [searge]
+注: Loading searge mappings from E:\Test\mod\ItemShowcase\targets\forge-1.20.1\build\createMcpToSrg\output.tsrg
+E:\Test\mod\ItemShowcase\targets\forge-1.20.1\src\main\java\com\heihun\Itemshowcase\forge1201\mixin\ChatComponentMixin.
+java:35: 警告: Unable to locate method mapping for @At(INVOKE.<target>) 'Lnet/minecraft/client/gui/GuiGraphics;drawString
+(Lnet/minecraft/client/gui/Font;Lnet/minecraft/client/gui/FormattedCharSequence;III)I'
+    @Redirect(
+    ^
+注: Writing refmap to E:\Test\mod\ItemShowcase\targets\forge-1.20.1\build\tmp\compileJava\compileJava-refmap.json
+注: Writing refmap to E:\Test\mod\ItemShowcase\targets\forge-1.20.1\build\tmp\compileJava\compileJava-refmap.json
+注: Writing searge composite mappings to E:\Test\mod\ItemShowcase\targets\forge-1.20.1\build\tmp\compileJava\compileJava
+-mappings.tsrg
+注: Writing refmap to E:\Test\mod\ItemShowcase\targets\forge-1.20.1\build\tmp\compileJava\compileJava-refmap.json
+注: Writing refmap to E:\Test\mod\ItemShowcase\targets\forge-1.20.1\build\tmp\compileJava\compileJava-refmap.json
+注: Writing searge composite mappings to E:\Test\mod\ItemShowcase\targets\forge-1.20.1\build\tmp\compileJava\compileJava
+-mappings.tsrg
+E:\Test\mod\ItemShowcase\targets\forge-1.20.1\src\main\java\com\heihun\Itemshowcase\forge1201\client\ChatIconOverlay.ja
+va:181: 错误: 找不到符号
+        net.minecraft.client.StringSplitter splitter = font.getStringSplitter();
+                                                           ^
+  符号:   方法 getStringSplitter()
+  位置: 类型为Font的变量 font
+E:\Test\mod\ItemShowcase\targets\forge-1.20.1\src\main\java\com\heihun\Itemshowcase\forge1201\client\ChatIconOverlay.ja
+va:194: 错误: 找不到符号
+                runStartIndex = ch == null ? i : ch.index();
+                                                   ^
+  符号:   方法 index()
+  位置: 类型为IndexedChar的变量 ch
+注: 某些输入文件使用或覆盖了已过时的 API。
+注: 有关详细信息, 请使用 -Xlint:deprecation 重新编译。
+2 个错误
+1 个警告
+
+> Task :compileJava FAILED
+
+FAILURE: Build failed with an exception.
+
+* What went wrong:
+Execution failed for task ':compileJava'.
+> Compilation failed; see the compiler error output for details.
+
+* Try:
+> Run with --info option to get more log output.
+> Run with --scan to get full insights.
+
+BUILD FAILED in 17s
+9 actionable tasks: 6 executed, 3 up-to-date

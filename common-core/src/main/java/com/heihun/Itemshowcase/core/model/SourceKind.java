@@ -9,8 +9,14 @@ public enum SourceKind {
     /** 主手物品（[i] 宏）。 */
     HAND,
 
-    /** 玩家背包（[inv] 宏，含快捷栏 / 盔甲 / 副手）。 */
+    /** 玩家背包（[inv] 宏，含快捷栏 / 主背包）。 */
     INVENTORY,
+
+    /** 盔甲栏。 */
+    ARMOR,
+
+    /** 副手。 */
+    OFFHAND,
 
     /** 末影箱（[ec] 宏）。 */
     ENDER_CHEST,

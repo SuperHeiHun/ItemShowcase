@@ -2,6 +2,8 @@
 // ForgeGradle 6 与其他加载器（NeoGradle / Loom）的配置完全隔离在各自目录中。
 plugins {
     id 'net.minecraftforge.gradle' version '[6.0.30,6.2)'
+    // MixinGradle：生成 refmap（生产环境 SRG 映射必需）
+    id 'org.spongepowered.mixin' version '0.7-SNAPSHOT'
 }
 
 version = mod_version
@@ -76,6 +78,12 @@ jar {
                 'MixinConfigs'          : 'itemshowcase.mixins.json'
         ])
     }
+}
+
+// Mixin 配置：refmap 生成到本 sourceSet
+mixin {
+    add sourceSets.main, 'itemshowcase-forge-1.20.1.refmap.json'
+    config 'itemshowcase.mixins.json'
 }
 
 // 将 common-core jar 内容合并进最终 mod jar

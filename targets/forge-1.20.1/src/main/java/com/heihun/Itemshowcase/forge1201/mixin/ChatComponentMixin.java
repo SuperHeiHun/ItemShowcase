@@ -26,20 +26,20 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @Mixin(ChatComponent.class)
 public abstract class ChatComponentMixin {
 
-    @Inject(method = "render(Lnet/minecraft/client/gui/GuiGraphics;IIIZ)V", at = @At("HEAD"))
+    @Inject(method = "render(Lnet/minecraft/client/gui/GuiGraphics;III)V", at = @At("HEAD"))
     private void itemshowcase$beginFrame(GuiGraphics guiGraphics, int tickCount, int mouseX, int mouseY,
-                                         boolean isOverlay, CallbackInfo ci) {
+                                         CallbackInfo ci) {
         ChatIconOverlay.beginFrame(mouseX, mouseY);
     }
 
     @Redirect(
-            method = "render(Lnet/minecraft/client/gui/GuiGraphics;IIIZ)V",
+            method = "render(Lnet/minecraft/client/gui/GuiGraphics;III)V",
             at = @At(
                     value = "INVOKE",
-                    target = "Lnet/minecraft/client/gui/GuiGraphics;drawString(Lnet/minecraft/client/gui/Font;Lnet/minecraft/client/gui/FormattedCharSequence;IIIZ)I"))
+                    target = "Lnet/minecraft/client/gui/GuiGraphics;drawString(Lnet/minecraft/client/gui/Font;Lnet/minecraft/util/FormattedCharSequence;III)I"))
     private int itemshowcase$drawLineWithIcons(GuiGraphics guiGraphics, Font font, FormattedCharSequence line,
-                                               int x, int y, int color, boolean dropShadow) {
-        int result = guiGraphics.drawString(font, line, x, y, color, dropShadow);
+                                               int x, int y, int color) {
+        int result = guiGraphics.drawString(font, line, x, y, color);
         try {
             ChatIconOverlay.renderLine(guiGraphics, font, line, x, y);
         } catch (Throwable renderFailure) {
