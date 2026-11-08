@@ -29,12 +29,6 @@ import java.util.Set;
 @Mod.EventBusSubscriber(modid = com.heihun.Itemshowcase.forge1201.ItemShowcaseMod.MOD_ID, bus = Mod.EventBusSubscriber.Bus.FORGE)
 public final class ChatHandler {
 
-    /** 配置热加载节流：每 100 tick 检查一次。 */
-    private static int tickCounter = 0;
-
-    private ChatHandler() {
-    }
-
     @SubscribeEvent
     public static void onServerChat(ServerChatEvent event) {
         String rawText = event.getRawText();
@@ -76,20 +70,10 @@ public final class ChatHandler {
     }
 
     @SubscribeEvent
-    public static void onServerTick(TickEvent.ServerTickEvent event) {
-        if (event.phase == TickEvent.Phase.END) {
-            tickCounter++;
-            if (tickCounter >= 100) {
-                tickCounter = 0;
-                ShowcaseServices.tickConfigReload();
-            }
-        }
-    }
-
-    @SubscribeEvent
     public static void onPlayerLogout(PlayerEvent.PlayerLoggedOutEvent event) {
         if (event.getEntity() instanceof ServerPlayer) {
             CapabilityTracker.remove(event.getEntity().getUUID());
         }
     }
 }
+

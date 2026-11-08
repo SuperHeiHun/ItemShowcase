@@ -2,6 +2,7 @@ package com.heihun.Itemshowcase.forge1201;
 
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.event.config.ModConfigEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 
@@ -17,7 +18,18 @@ public class ItemShowcaseMod {
     public ItemShowcaseMod() {
         IEventBus modBus = FMLJavaModLoadingContext.get().getModEventBus();
         modBus.addListener(this::onCommonSetup);
+        // Forge 原生配置（TOML，自带文件监听热重载）
+        ForgeConfigs.register();
+        modBus.addListener(this::onModConfigEvent);
         ItemShowcaseBootstrap.init();
+    }
+
+    private void onModConfigEvent(ModConfigEvent event) {
+        // Loading（首次加载）与 Reloading（外部修改热重载）都同步到运行时配置对象
+        if (event.getConfig().getSpec() == ForgeConfigs.SERVER_SPEC
+                || event.getConfig().getSpec() == ForgeConfigs.CLIENT_SPEC) {
+            ForgeConfigs.syncAll();
+        }
     }
 
     private void onCommonSetup(FMLCommonSetupEvent event) {
