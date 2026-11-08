@@ -64,6 +64,18 @@
 - **Forge 1.20.1 配置**：已切换到 Forge 原生 TOML（ForgeConfigs：ForgeConfigSpec + ModConfigEvent 自动热重载），
   config/itemshowcase-common.toml（服务端）+ itemshowcase-client.toml（客户端）；值同步回 common-core 配置对象；
   JSON ConfigManager 仅剩其他目标版本使用；ModConfigEvent 包路径 = net.minecraftforge.fml.event.config
+- **阶段五已开始（NeoForge 1.21.1）**：targets/neoforge-1.21.1（MDG 2.0.148 + NeoForge 21.1.265 + Gradle 8.8 + Java 21），
+  编译通过（itemshowcase-neoforge-21.1-1.0.0.jar）。1.21.1 关键差异（javap 已验证）：
+  ChatComponent.render=(GuiGraphics;IIIZ)V（恢复 boolean）；getLineHeight 为 private int（可注入）；
+  网络用 CustomPacketPayload + RegisterPayloadHandlersEvent/PayloadRegistrar（StreamCodec 泛型可用
+  RegistryFriendlyByteBuf 的超类 FriendlyByteBuf）；IPayloadContext.player() 返回 Player（非 Optional）；
+  ItemStack 网络 = ItemStack.STREAM_CODEC（RegistryFriendlyByteBuf + RegistryAccess）；
+  1.21.1 无 MinecraftServer.getServer() → 用 NeoForge ServerLifecycleHooks.getCurrentServer() 或 player.level().getServer()；
+  组件化：setHoverName → stack.set(DataComponents.CUSTOM_NAME,..)，玩家头 → DataComponents.PROFILE + ResolvableProfile(GameProfile)；
+  NeoForge 运行时 = Mojang 官方映射 → mixin 无需 refmap；
+  Curios neoforge 9.5.1+1.21.1（api 分类器）：CuriosApi.getCuriosInventory(entity) 返回 Optional；
+  待办：SB/SC 1.21.1 的 cursemaven 8181786/8181881 是 Forge 版（引用 net.minecraftforge.items 不可用），
+  需查 NeoForge 版文件 ID 后恢复 SophisticatedBackpacksIntegration（代码在 git 历史可找回）
 - **注意**：用户本地 config/itemshowcase-client.json 里已有旧值会覆盖新默认值（合并加载），调默认值后要提醒用户删旧字段
 - 物品名优先用客户端解码 ItemStack 的 hover name（服务端 plainName 仅回退）
 - 1.20.1 的 mouseScrolled 是 3 参（4 参是 1.20.2+）
