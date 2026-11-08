@@ -83,9 +83,11 @@ public final class ChatIconOverlay {
             if (item == null || item.stack().isEmpty()) {
                 continue; // 缓存淘汰或解码失败：占位保留为空白
             }
-            drawIcon(guiGraphics, font, item.stack(), x + run.startPx, y, config);
             int iconSize = config.iconSize;
-            HOVERABLES.add(new IconRect(x + run.startPx, y - 3, iconSize, item.stack()));
+            // 图标在占位区内水平居中，左右留出间隙
+            int iconX = x + run.startPx + Math.max(0, (run.runWidth - iconSize) / 2);
+            drawIcon(guiGraphics, font, item.stack(), iconX, y, config);
+            HOVERABLES.add(new IconRect(iconX, y - 3, iconSize, item.stack()));
         }
     }
 
@@ -149,14 +151,16 @@ public final class ChatIconOverlay {
         final List<IconRun> icons = new ArrayList<>();
     }
 
-    /** 一个占位 run：屏幕 x 起点 + 消息/物品索引。 */
+    /** 一个占位 run：屏幕 x 起点、占位区宽度、消息/物品索引。 */
     static final class IconRun {
         final int startPx;
+        final int runWidth;
         final int messageId;
         final int itemIndex;
 
-        IconRun(int startPx, int messageId, int itemIndex) {
+        IconRun(int startPx, int runWidth, int messageId, int itemIndex) {
             this.startPx = startPx;
+            this.runWidth = runWidth;
             this.messageId = messageId;
             this.itemIndex = itemIndex;
         }
@@ -240,7 +244,23 @@ public final class ChatIconOverlay {
         if (startPx < 0) {
             startPx = 0;
         }
-        scan.icons.add(new IconRun(startPx, id, index));
+        // 占位区实际像素宽度（含换行器对空格的实际排版），供图标居中使用
+        int prefixPlusRun = startIndex + text.length();
+        FormattedCharSequence prefixAndRun = consumer -> {
+            int[] count = {0};
+            return line.accept((idx, charStyle, codePoint) -> {
+                int position = count[0]++;
+                if (position < prefixPlusRun) {
+                    return consumer.accept(position, charStyle, codePoint);
+                }
+                return true;
+            });
+        };
+        int runWidth = net.minecraft.util.Mth.floor(splitter.stringWidth(prefixAndRun)) - startPx;
+        if (runWidth < 1) {
+            runWidth = 1;
+        }
+        scan.icons.add(new IconRun(startPx, runWidth, id, index));
     }
 
     /** 行内字符（含样式与行内索引）。 */

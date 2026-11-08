@@ -42,8 +42,8 @@ import java.util.Map;
  */
 public final class ShowcaseMessageHandler {
 
-    /** 占位 run 的空格数：4 空格 × 4px = 16px 图标区。 */
-    public static final int PLACEHOLDER_SPACES = 4;
+    /** 占位 run 的空格数：约 24px 图标区，图标在区内居中（左右各留间隙）。 */
+    public static final int PLACEHOLDER_SPACES = 6;
 
     /** 缓存容量：聊天历史中可见的展示消息数量上限。 */
     private static final int MAX_CACHED_MESSAGES = 128;

@@ -104,6 +104,8 @@ public interface ItemShowcaseConfig {
         public int iconSpacing = 2;
         /** 单条聊天消息最多渲染的图标数（防御渲染性能）。 */
         public int maxRenderedItems = 54;
+        /** 聊天行距附加量（像素）：缓解 16px 图标与 9px 行高的视觉拥挤，0 = 原版行距。 */
+        public int extraLineSpacing = 3;
         /**
          * Ctrl+Enter 快捷发送模式：DIRECT_SEND = 直接发送展示；
          * INSERT_MACRO = 在聊天输入框插入 [i] 占位。
@@ -120,6 +122,7 @@ public interface ItemShowcaseConfig {
             animations = true;
             iconSpacing = 2;
             maxRenderedItems = 54;
+            extraLineSpacing = 3;
             quickShowMode = "DIRECT_SEND";
         }
 
@@ -128,6 +131,7 @@ public interface ItemShowcaseConfig {
             iconSize = clamp(iconSize, 8, 32);
             iconSpacing = clamp(iconSpacing, 0, 16);
             maxRenderedItems = clamp(maxRenderedItems, 1, 512);
+            extraLineSpacing = clamp(extraLineSpacing, 0, 20);
             if (!"DIRECT_SEND".equals(quickShowMode) && !"INSERT_MACRO".equals(quickShowMode)) {
                 quickShowMode = "DIRECT_SEND";
             }
