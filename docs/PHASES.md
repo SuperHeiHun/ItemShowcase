@@ -27,14 +27,18 @@
 - [x] Forge 1.20.1 构建（BUILD SUCCESSFUL，jar 含合并后的 common-core）
 - [ ] 客户端/服务端启动测试记录（进行中）
 
-## 阶段三：饰品和背包
+## 阶段三：饰品和背包 —— 【Forge 1.20.1 已完成】
 
-- [ ] CuriosProvider（1.20.1 / 1.16.5 Forge，1.21.1 全家）
-- [ ] TrinketsProvider（Fabric 各版本）
-- [ ] AccessoriesProvider（1.21.1）
-- [ ] SophisticatedBackpacksIntegration（IBackpackWrapper / INBTStorage 缓存，读取失败降级）
-- [ ] `[c]` `[pack]` 宏 + `[i]` 特殊背包处理
-- [ ] ItemContainerProvider 插件注册机制完善（为 Traveler's Backpack 等预留）
+- [x] CuriosProvider（Forge 1.20.1，Curios 5.14 API：动态枚举全部已注册槽位类型）
+- [ ] TrinketsProvider（Fabric 各版本，随阶段四/五/六）
+- [ ] AccessoriesProvider（1.21.1，随阶段五）
+- [x] SophisticatedBackpacksIntegration（Forge 1.20.1：BackpackWrapper 公开 API，无固定 NBT 路径）
+- [x] `[c]` `[pack]` 宏 + `[i]` 特殊背包处理（Forge 1.20.1）
+- [x] ItemContainerProvider 插件注册机制（IntegrationSetup，新增集成只需一行注册）
+- [x] mods.toml 可选依赖声明（curios / sophisticatedbackpacks missing 时安全降级）
+
+> Trinkets（Fabric）与 Accessories（1.21.1）按阶段四/五的加载器架构接入各自目标工程，
+> core 侧 SPI（AccessoryProvider / ItemContainerProvider）已就绪，无需改动。
 
 ## 阶段四：Fabric 1.20.1 适配（复用 common-core）
 

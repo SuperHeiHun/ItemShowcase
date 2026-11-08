@@ -101,7 +101,8 @@ public final class QuickShowHandler {
             @Override
             public com.heihun.Itemshowcase.core.spi.BackpackData inspectBackpack(
                     com.heihun.Itemshowcase.core.spi.SlotItem stack, int maxDepth) {
-                return null;
+                // 快捷展示同样支持容器物品展开（如 SB 背包）
+                return new ForgeDataViews(player, ShowcaseServices.integrations()).inspectBackpack(stack, maxDepth);
             }
         };
         ShowcaseMessageFactory factory = new ShowcaseMessageFactory(views, ShowcaseServices.serverConfig());

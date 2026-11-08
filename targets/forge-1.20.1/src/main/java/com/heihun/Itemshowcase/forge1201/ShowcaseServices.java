@@ -25,6 +25,10 @@ public final class ShowcaseServices {
     /** 展示消息频率限制（参数随服务端配置变化）。 */
     private static volatile RateLimiter rateLimiter = new RateLimiter(6, 10);
 
+    /** 集成注册表：容器物品 Provider 与饰品 API Provider。 */
+    private static final com.heihun.Itemshowcase.core.spi.IntegrationRegistry INTEGRATIONS =
+            new com.heihun.Itemshowcase.core.spi.IntegrationRegistry();
+
     private ShowcaseServices() {
     }
 
@@ -32,6 +36,8 @@ public final class ShowcaseServices {
         SERVER_CONFIG.load();
         CLIENT_CONFIG.load();
         rateLimiter = new RateLimiter(SERVER_CONFIG.get().rateLimitMaxPerWindow, SERVER_CONFIG.get().rateLimitWindowSeconds);
+        // 可选 MOD 集成注册（缺失时安全降级，注册表内部会记录日志）
+        com.heihun.Itemshowcase.forge1201.server.integration.IntegrationSetup.registerAll(INTEGRATIONS);
         ItemShowcaseLogger.info("ItemShowcase 配置已加载");
     }
 
@@ -52,6 +58,10 @@ public final class ShowcaseServices {
 
     public static RateLimiter rateLimiter() {
         return rateLimiter;
+    }
+
+    public static com.heihun.Itemshowcase.core.spi.IntegrationRegistry integrations() {
+        return INTEGRATIONS;
     }
 
     private static Path configPath(String fileName) {

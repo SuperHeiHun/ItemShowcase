@@ -66,7 +66,8 @@ public final class ChatHandler {
 
         // 服务端线程上读取真实库存并构建结构化消息
         ShowcaseMessageFactory factory =
-                new ShowcaseMessageFactory(new ForgeDataViews(player), ShowcaseServices.serverConfig());
+                new ShowcaseMessageFactory(new ForgeDataViews(player, ShowcaseServices.integrations()),
+                        ShowcaseServices.serverConfig());
         ShowcaseMessage message = factory.build(parsed, player.getUUID(), player.getGameProfile().getName());
         BroadcastService.broadcast(player.server, message);
 

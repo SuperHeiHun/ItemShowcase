@@ -19,7 +19,7 @@
   "itemshowcase.macro.pack.disabled": "The [pack] macro is disabled on this server.",
   "itemshowcase.macro.pack.empty": "No compatible backpack equipped.",
   "itemshowcase.source.hand": "Holding",
-  "itemshowcase.source.inventory": "Inventory",
+  "itemshowcase.source.inventory": "Inventory", "itemshowcase.source.armor": "Armor", "itemshowcase.source.offhand": "Offhand",
   "itemshowcase.source.ender_chest": "Ender Chest",
   "itemshowcase.source.curio": "Accessories",
   "itemshowcase.source.backpack": "Backpack"

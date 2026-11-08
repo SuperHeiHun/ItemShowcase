@@ -1,8 +1,12 @@
 package com.heihun.Itemshowcase.forge1201.server;
 
+import com.heihun.Itemshowcase.core.logging.ItemShowcaseLogger;
 import com.heihun.Itemshowcase.core.model.SourceKind;
+import com.heihun.Itemshowcase.core.spi.AccessoryProvider;
 import com.heihun.Itemshowcase.core.spi.AccessorySlotData;
 import com.heihun.Itemshowcase.core.spi.BackpackData;
+import com.heihun.Itemshowcase.core.spi.IntegrationRegistry;
+import com.heihun.Itemshowcase.core.spi.ItemContainerProvider;
 import com.heihun.Itemshowcase.core.spi.ItemStackView;
 import com.heihun.Itemshowcase.core.spi.PlayerDataViews;
 import com.heihun.Itemshowcase.core.spi.SlotItem;
@@ -18,15 +22,19 @@ import java.util.List;
  *
  * <p>必须在服务器线程上构建与使用（ServerChatEvent / 网络主线程处理器均满足）。</p>
  *
- * <p>饰品 API（[c]）与容器物品集成（[pack]）在阶段三接入：当前返回空数据，
- * 对应宏将给出“未找到”提示而不是崩溃。</p>
+ * <p>饰品（[c]）通过 {@link AccessoryProvider} 集成读取（Curios 已接入，
+ * 未安装任何饰品 API 时返回空列表）；容器物品（[pack] 与 [i] 展开）通过
+ * {@link ItemContainerProvider} 集成识别（Sophisticated Backpacks 已接入）。
+ * 全部不硬编码槽位名或物品 ID。</p>
  */
 public final class ForgeDataViews implements PlayerDataViews {
 
     private final ServerPlayer player;
+    private final IntegrationRegistry integrations;
 
-    public ForgeDataViews(ServerPlayer player) {
+    public ForgeDataViews(ServerPlayer player, IntegrationRegistry integrations) {
         this.player = player;
+        this.integrations = integrations;
     }
 
     /** ItemStack 的 common-core 视图包装。 */
@@ -71,28 +79,67 @@ public final class ForgeDataViews implements PlayerDataViews {
 
     @Override
     public List<AccessorySlotData> getAccessories() {
-        // 阶段三接入：Curios / Trinkets / Accessories 集成
-        return List.of();
+        List<AccessorySlotData> result = new ArrayList<>();
+        for (AccessoryProvider provider : integrations.accessoryProviders()) {
+            try {
+                result.addAll(provider.getSlots(player));
+            } catch (Throwable providerFailure) {
+                // 单个饰品 API 故障不影响其他 API 与整个消息
+                ItemShowcaseLogger.warn("饰品 API 读取失败: " + provider.id(), providerFailure);
+            }
+        }
+        return result;
     }
 
     @Override
     public List<BackpackData> getEquippedBackpacks() {
-        // 阶段三接入：饰品 API + ItemContainerProvider
-        return List.of();
+        List<BackpackData> result = new ArrayList<>();
+        for (AccessorySlotData accessory : getAccessories()) {
+            if (accessory.isEmpty()) {
+                continue;
+            }
+            // 识别能提供内部库存的背包：按 ItemContainerProvider 能力判断，
+            // 不假定饰品槽位名称（back/backpack 等都不假设）
+            ItemContainerProvider provider = integrations.findContainerProvider(accessory.stack());
+            if (provider == null) {
+                continue;
+            }
+            try {
+                List<ItemStackView> contents = provider.getContents(accessory.stack(), 1);
+                if (!contents.isEmpty()) {
+                    result.add(new BackpackData(accessory.stack(), contents, provider.id()));
+                }
+            } catch (Throwable providerFailure) {
+                ItemShowcaseLogger.warn("装备背包内部库存读取失败: " + provider.id(), providerFailure);
+            }
+        }
+        return result;
     }
 
     @Override
     public BackpackData inspectBackpack(SlotItem stack, int maxDepth) {
-        // 阶段三接入：SophisticatedBackpacksIntegration 等容器 Provider
-        return null;
+        if (stack == null || stack.isEmpty()) {
+            return null;
+        }
+        ItemContainerProvider provider = integrations.findContainerProvider(stack.stack());
+        if (provider == null) {
+            return null;
+        }
+        try {
+            List<ItemStackView> contents = provider.getContents(stack.stack(), maxDepth);
+            return new BackpackData(stack.stack(), contents, provider.id());
+        } catch (Throwable providerFailure) {
+            ItemShowcaseLogger.warn("容器物品检查失败: " + provider.id(), providerFailure);
+            return null;
+        }
     }
 
-    /** Forge 1.20.1 的 ItemStackView 实现。 */
-    static final class ForgeItemStackView implements ItemStackView {
+    /** Forge 1.20.1 的 ItemStackView 实现（集成层也使用）。 */
+    public static final class ForgeItemStackView implements ItemStackView {
 
         private final ItemStack stack;
 
-        ForgeItemStackView(ItemStack stack) {
+        public ForgeItemStackView(ItemStack stack) {
             this.stack = stack;
         }
 

@@ -27,3 +27,18 @@ Chat item showcase: display real item icons in chat with [i] [inv] [ec] [c] [pac
     versionRange="[1.20.1,1.21)"
     ordering="NONE"
     side="BOTH"
+
+# 可选集成：缺失时安全降级
+[[dependencies.itemshowcase]]
+    modId="curios"
+    mandatory=false
+    versionRange="[5,)"
+    ordering="NONE"
+    side="BOTH"
+
+[[dependencies.itemshowcase]]
+    modId="sophisticatedbackpacks"
+    mandatory=false
+    versionRange="[3.18,)"
+    ordering="NONE"
+    side="BOTH"

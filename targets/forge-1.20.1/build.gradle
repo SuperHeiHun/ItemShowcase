@@ -55,6 +55,15 @@ sourceSets.main.resources {
 
 repositories {
     mavenCentral()
+    maven {
+        name = "Curios"
+        url = uri("https://maven.theillusivec4.top/")
+    }
+    maven {
+        name = "CurseMaven"
+        url = uri("https://www.cursemaven.com/")
+        content { includeGroup "curse.maven" }
+    }
 }
 
 dependencies {
@@ -62,6 +71,17 @@ dependencies {
 
     // common-core 通过 settings.gradle 的 Composite Build 以源码参与构建
     implementation 'com.heihun.Itemshowcase:itemshowcase-common-core:1.0.0'
+
+    // ---- 可选集成（运行时检测，缺失时安全降级） ----
+    // Curios API：仅编译 API 工件，运行时由玩家环境提供
+    compileOnly fg.deobf("top.theillusivec4.curios:curios-forge:${curios_version}:api")
+    runtimeOnly fg.deobf("top.theillusivec4.curios:curios-forge:${curios_version}")
+
+    // Sophisticated Backpacks + Core：仅编译，不打包进产物
+    compileOnly fg.deobf("curse.maven:sophisticated-backpacks-${sb_cf_project}:${sb_cf_file}")
+    compileOnly fg.deobf("curse.maven:sophisticated-core-${sc_cf_project}:${sc_cf_file}")
+    runtimeOnly fg.deobf("curse.maven:sophisticated-backpacks-${sb_cf_project}:${sb_cf_file}")
+    runtimeOnly fg.deobf("curse.maven:sophisticated-core-${sc_cf_project}:${sc_cf_file}")
 
     // Mixin 注解处理器（生成 refmap）
     annotationProcessor 'org.spongepowered:mixin:0.8.5:processor'

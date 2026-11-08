@@ -19,7 +19,7 @@
   "itemshowcase.macro.pack.disabled": "[pack] 宏已被服务器禁用。",
   "itemshowcase.macro.pack.empty": "没有装备可识别的背包。",
   "itemshowcase.source.hand": "手持",
-  "itemshowcase.source.inventory": "背包",
+  "itemshowcase.source.inventory": "背包", "itemshowcase.source.armor": "盔甲", "itemshowcase.source.offhand": "副手",
   "itemshowcase.source.ender_chest": "末影箱",
   "itemshowcase.source.curio": "饰品",
   "itemshowcase.source.backpack": "背包"
