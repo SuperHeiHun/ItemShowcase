@@ -85,7 +85,11 @@
   加载前保留 common-core 默认值（字段内联默认 + sanitize 兜底）；
   待办：SB/SC 1.21.1 的 cursemaven 8181786/8181881 是 Forge 版（引用 net.minecraftforge.items 不可用），
   需查 NeoForge 版文件 ID 后恢复 SophisticatedBackpacksIntegration（代码在 git 历史可找回）；
-  用户整合包（1.21.1 汇流来世，NeoForge 21.1.255）装有 SB/SC/Curios，可作实机集成验证
+  用户整合包（1.21.1 汇流来世，NeoForge 21.1.255）装有 SB/SC/Curios，可作实机集成验证；
+  **NeoForge unit codec 教训**：无字段 payload 用 StreamCodec.unit(INSTANCE) 时，发送必须复用 INSTANCE
+  （PacketDistributor.sendToServer(ClientHandshakePayload.INSTANCE)）——new 新实例会在编码期抛
+  "Can't encode '新实例', expected '单例'" → EncoderException → 进服断线（Forge 1.20.1 SimpleChannel
+  无此检查所以未暴露）；构造器私有化防再犯
 - **注意**：用户本地 config/itemshowcase-client.json 里已有旧值会覆盖新默认值（合并加载），调默认值后要提醒用户删旧字段
 - 物品名优先用客户端解码 ItemStack 的 hover name（服务端 plainName 仅回退）
 - 1.20.1 的 mouseScrolled 是 3 参（4 参是 1.20.2+）
