@@ -92,7 +92,14 @@
   无此检查所以未暴露）；构造器私有化防再犯；
   **移植对称性教训**：NeoForge 的 sendShowcaseMessage 曾多包一层 Envelope 信封，而 S2C 端按裸
   ShowcaseMessage 解码 → 每条消息 FormatException 全部丢弃（症状：读字符串长度前缀对不上、未知段类型 ID）；
-  各平台收发两端必须与参考实现（Forge 1.20.1 = 裸 encodeToBytes 字节）逐字节对称，新目标先对照检查
+  各平台收发两端必须与参考实现（Forge 1.20.1 = 裸 encodeToBytes 字节）逐字节对称，新目标先对照检查；
+  **Mixin 静默失效排查法**：整合包 versions 目录下 `.mixin.out\class\` 有混合后字节码导出，
+  javap 直接确认注入是否真的织入（处理器被复制 ≠ 调用点被改写）；占位 run 拍平/检测逻辑可用
+  独立 Java 程序 + compiledWithNeoForge jar 离线验证（需补 en_us.json 资源）；
+  **@Inject 与 @WrapOperation 混居同一 mixin 类的坑**：MixinExtras 0.5.5 延迟注入阶段 wrap 的
+  调用点改写被静默跳过（require=0 掩盖），拆成独立 mixin 类后正常（justzoom 对照：纯 wrap 类正常）；
+  文字在加高槽内居中 = 上移 floorDiv(extra,2)+1（+1 修正原版槽内自带的 1px 底部偏移，extra=0 时不偏移）；
+  mixin 内加一次性日志（"聊天行渲染钩子已生效"）用于实机确认钩子真实生效
 - **注意**：用户本地 config/itemshowcase-client.json 里已有旧值会覆盖新默认值（合并加载），调默认值后要提醒用户删旧字段
 - 物品名优先用客户端解码 ItemStack 的 hover name（服务端 plainName 仅回退）
 - 1.20.1 的 mouseScrolled 是 3 参（4 参是 1.20.2+）
