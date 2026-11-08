@@ -1,0 +1,52 @@
+﻿Active code page: 65001
+To honour the JVM settings for this build a single-use Daemon process will be forked. For more on this, please refer to https://docs.gradle.org/9.1.0/userguide/gradle_daemon.html#sec:disabling_the_daemon in the Gradle documentation.
+Daemon will be stopped at the end of the build 
+
+> Task :compileJava
+gradle : 璀﹀憡: [options] 婧愬€?8 宸茶繃鏃讹紝灏嗗湪鏈潵鍙戣鐗堜腑鍒犻櫎
+所在位置 行:1 字符: 1
++ gradle --no-daemon compileJava 2>&1 | Out-File clog.txt -Encoding utf ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (璀﹀憡: [options] ...灏嗗湪鏈潵鍙戣鐗堜腑鍒犻櫎:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+璀﹀憡: [options] 鐩爣鍊?8 宸茶繃鏃讹紝灏嗗湪鏈潵鍙戣鐗堜腑鍒犻櫎
+璀﹀憡: [options] 瑕侀殣钘忔湁鍏冲凡杩囨椂閫夐」鐨勮鍛? 璇蜂娇鐢?-Xlint:-options銆?
+E:\Test\mod\ItemShowcase\common-core\src\main\java\com\heihun\Itemshowcase\core\model\ShowcaseMessageFactory.java:195: 
+閿欒: 鏃犳硶灏嗙被 ItemSegment涓殑鏋勯€犲櫒 ItemSegment搴旂敤鍒扮粰瀹氱被鍨?
+            items.add(new ItemSegment(
+                      ^
+  闇€瑕? ItemStackPayload,int,String,String,SourceKind,String,int,int
+  鎵惧埌:    ItemStackPayload,int,String,<绌哄€?,SourceKind,String,int
+  鍘熷洜: 瀹為檯鍙傛暟鍒楄〃鍜屽舰寮忓弬鏁板垪琛ㄩ暱搴︿笉鍚?
+1 涓敊璇?
+3 涓鍛?
+
+> Task :compileJava FAILED
+
+[Incubating] Problems report is available at: file:///E:/Test/mod/ItemShowcase/common-core/build/reports/problems/problems-report.html
+
+FAILURE: Build failed with an exception.
+
+* What went wrong:
+Execution failed for task ':compileJava'.
+> Compilation failed; see the compiler output below.
+  E:\Test\mod\ItemShowcase\common-core\src\main\java\com\heihun\Itemshowcase\core\model\ShowcaseMessageFactory.java:195
+: 閿欒: 鏃犳硶灏嗙被 ItemSegment涓殑鏋勯€犲櫒 ItemSegment搴旂敤鍒扮粰瀹氱被鍨?
+              items.add(new ItemSegment(
+                        ^
+    闇€瑕? ItemStackPayload,int,String,String,SourceKind,String,int,int
+    鎵惧埌:    ItemStackPayload,int,String,<绌哄€?,SourceKind,String,int
+    鍘熷洜: 瀹為檯鍙傛暟鍒楄〃鍜屽舰寮忓弬鏁板垪琛ㄩ暱搴︿笉鍚?
+  璀﹀憡: [options] 鐩爣鍊?8 宸茶繃鏃讹紝灏嗗湪鏈潵鍙戣鐗堜腑鍒犻櫎
+  璀﹀憡: [options] 婧愬€?8 宸茶繃鏃讹紝灏嗗湪鏈潵鍙戣鐗堜腑鍒犻櫎
+  璀﹀憡: [options] 瑕侀殣钘忔湁鍏冲凡杩囨椂閫夐」鐨勮鍛? 璇蜂娇鐢?-Xlint:-options銆?
+  1 涓敊璇?
+  3 涓鍛?
+
+* Try:
+> Check your code and dependencies to fix the compilation error(s)
+> Run with --scan to generate a Build Scan (Powered by Develocity).
+
+BUILD FAILED in 10s
+1 actionable task: 1 executed

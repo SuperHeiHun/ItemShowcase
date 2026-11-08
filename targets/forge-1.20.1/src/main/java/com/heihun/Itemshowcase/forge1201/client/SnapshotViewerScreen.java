@@ -101,41 +101,27 @@ public final class SnapshotViewerScreen extends ContainerScreen {
         }
         slots[0][1] = playerHead(entry.senderName(), entry.senderId());
 
-        // 盔甲（头/胸/腿/脚按遍历顺序）+ 副手
-        List<ItemStack> armor = new ArrayList<>();
-        ItemStack offhand = ItemStack.EMPTY;
-        List<ItemStack> mainInventory = new ArrayList<>();
+        // 按原库存槽位号精确摆放（与真实库存位置一致；空槽位保持空）
         for (ShowcaseMessageHandler.DisplayItem item : entry.items()) {
-            if (item.source() == SourceKind.ARMOR) {
-                armor.add(item.stack());
-            } else if (item.source() == SourceKind.OFFHAND) {
-                offhand = item.stack();
-            } else if (item.source() == SourceKind.INVENTORY) {
-                mainInventory.add(item.stack());
+            ItemStack stack = item.stack().isEmpty() ? ItemStack.EMPTY : item.stack().copy();
+            int index = item.slotIndex();
+            switch (item.source()) {
+                case ARMOR -> {
+                    if (index >= 0 && index < 4) {
+                        slots[0][4 + index] = stack;
+                    }
+                }
+                case OFFHAND -> slots[0][8] = stack;
+                case INVENTORY -> {
+                    // 库存槽位号：0-8 快捷栏 → GUI 底行；9-35 主背包 → GUI 行 3-5
+                    if (index >= 0 && index < 9) {
+                        slots[5][index] = stack;
+                    } else if (index >= 9 && index < 36) {
+                        slots[2 + (index - 9) / COLUMNS][(index - 9) % COLUMNS] = stack;
+                    }
+                }
+                default -> { /* 其他来源不属于背包布局 */ }
             }
-        }
-        for (int i = 0; i < Math.min(4, armor.size()); i++) {
-            slots[0][4 + i] = armor.get(i).copy();
-        }
-        if (!offhand.isEmpty()) {
-            slots[0][8] = offhand.copy();
-        }
-
-        // 行 3-5：主背包（前 9 格为快捷栏，其余主背包）——主背包内容放 18-44，快捷栏放 45-53
-        List<ItemStack> hotbar = new ArrayList<>();
-        List<ItemStack> main = new ArrayList<>();
-        for (int i = 0; i < mainInventory.size(); i++) {
-            if (i < 9) {
-                hotbar.add(mainInventory.get(i));
-            } else {
-                main.add(mainInventory.get(i));
-            }
-        }
-        for (int i = 0; i < Math.min(main.size(), 27); i++) {
-            slots[2 + (i / COLUMNS)][i % COLUMNS] = main.get(i).copy();
-        }
-        for (int i = 0; i < Math.min(hotbar.size(), COLUMNS); i++) {
-            slots[5][i] = hotbar.get(i).copy();
         }
 
         fillContainer(container, slots);
@@ -158,13 +144,15 @@ public final class SnapshotViewerScreen extends ContainerScreen {
         }
         slots[0][4] = playerHead(entry.senderName(), entry.senderId());
 
-        // 27 格末影箱内容（保持服务端末影箱槽位顺序）
-        List<ItemStack> contents = new ArrayList<>();
+        // 按末影箱原槽位号（0-26）精确摆放：GUI 行 3-5，位置与真实末影箱一致
         for (ShowcaseMessageHandler.DisplayItem item : entry.items()) {
-            contents.add(item.stack());
-        }
-        for (int i = 0; i < Math.min(contents.size(), 27); i++) {
-            slots[2 + (i / COLUMNS)][i % COLUMNS] = contents.get(i).copy();
+            if (item.source() != SourceKind.ENDER_CHEST || item.stack().isEmpty()) {
+                continue;
+            }
+            int index = item.slotIndex();
+            if (index >= 0 && index < 27) {
+                slots[2 + index / COLUMNS][index % COLUMNS] = item.stack().copy();
+            }
         }
 
         fillContainer(container, slots);

@@ -143,11 +143,14 @@ public final class ShowcaseMessageHandler {
         private final ItemStack stack;
         private final SourceKind source;
         private final String slotInfo;
+        /** 原库存槽位号（-1 = 无槽位语义）。 */
+        private final int slotIndex;
 
-        DisplayItem(ItemStack stack, SourceKind source, String slotInfo) {
+        DisplayItem(ItemStack stack, SourceKind source, String slotInfo, int slotIndex) {
             this.stack = stack;
             this.source = source;
             this.slotInfo = slotInfo;
+            this.slotIndex = slotIndex;
         }
 
         public ItemStack stack() {
@@ -160,6 +163,10 @@ public final class ShowcaseMessageHandler {
 
         public String slotInfo() {
             return slotInfo;
+        }
+
+        public int slotIndex() {
+            return slotIndex;
         }
     }
 
@@ -309,7 +316,7 @@ public final class ShowcaseMessageHandler {
         } catch (RuntimeException decodeFailure) {
             ItemShowcaseLogger.warn("物品数据解码失败: " + item.item().itemIdHint(), decodeFailure);
         }
-        return new DisplayItem(stack, item.source(), item.slotInfo());
+        return new DisplayItem(stack, item.source(), item.slotInfo(), item.slotIndex());
     }
 
     /**

@@ -178,6 +178,7 @@ public final class ShowcaseMessage {
         writer.writeNullableString(item.displayNameJson());
         writer.writeVarInt(item.source().ordinal());
         writer.writeNullableString(item.slotInfo());
+        writer.writeVarInt(item.slotIndex());
         writer.writeVarInt(item.depth());
     }
 
@@ -244,7 +245,8 @@ public final class ShowcaseMessage {
         String displayNameJson = reader.readNullableString();
         SourceKind source = SourceKind.values()[reader.readVarInt()];
         String slotInfo = reader.readNullableString();
+        int slotIndex = reader.readVarInt();
         int depth = reader.readVarInt();
-        return new ItemSegment(payload, count, plainName, displayNameJson, source, slotInfo, depth);
+        return new ItemSegment(payload, count, plainName, displayNameJson, source, slotInfo, slotIndex, depth);
     }
 }

@@ -27,14 +27,20 @@ public final class ItemSegment extends ShowcaseSegment {
     /** 来源分类。 */
     private final SourceKind source;
 
-    /** 槽位信息：饰品槽位类型 ID / 库存槽位号的可读形式；无则为 null。 */
+    /** 槽位信息：饰品槽位类型 ID / 容器标识；无则为 null。 */
     private final String slotInfo;
+
+    /**
+     * 原库存槽位号（0-8 快捷栏、9-35 主背包、0-3 盔甲、末影箱 0-26、饰品槽内索引）。
+     * 客户端 GUI 按此精确摆放，保证与真实库存位置一致；-1 = 无槽位语义。
+     */
+    private final int slotIndex;
 
     /** 嵌套深度：0 = 玩家直接持有；1 = 来自玩家持有的背包内部；以此类推。 */
     private final int depth;
 
     public ItemSegment(ItemStackPayload item, int count, String plainName, String displayNameJson,
-                       SourceKind source, String slotInfo, int depth) {
+                       SourceKind source, String slotInfo, int slotIndex, int depth) {
         if (item == null) {
             throw new IllegalArgumentException("ItemStackPayload 不能为空");
         }
@@ -47,6 +53,7 @@ public final class ItemSegment extends ShowcaseSegment {
         this.displayNameJson = displayNameJson;
         this.source = source;
         this.slotInfo = (slotInfo == null || slotInfo.isEmpty()) ? null : slotInfo;
+        this.slotIndex = slotIndex;
         this.depth = depth;
     }
 
@@ -72,6 +79,11 @@ public final class ItemSegment extends ShowcaseSegment {
 
     public String slotInfo() {
         return slotInfo;
+    }
+
+    /** 原库存槽位号（-1 = 无槽位语义）。 */
+    public int slotIndex() {
+        return slotIndex;
     }
 
     public int depth() {

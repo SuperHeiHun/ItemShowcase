@@ -155,6 +155,7 @@ public final class ShowcaseMessageFactory {
                     null,
                     SourceKind.CURIO,
                     slot.slotTypeId(),
+                    slot.slotIndex(),
                     0));
         }
         if (items.isEmpty()) {
@@ -188,7 +189,7 @@ public final class ShowcaseMessageFactory {
     /** 构建一个“背包 + 内部物品”的分组。内容物不受消息级物品预算限制（独立限额 maxContainerContents 由校验器把关）。 */
     private ItemGroupSegment buildBackpackGroup(BackpackData backpack, SourceKind source, ItemBudget budget) {
         List<ItemSegment> items = new ArrayList<>();
-        // 第一个元素是背包本身（消耗预算：它是直接展示的物品）
+        // 第一个元素是背包本身（消耗预算：它是直接展示的物品；槽位号 -1 = 容器本体）
         if (budget.tryConsume()) {
             ItemStackView stack = backpack.backpack();
             items.add(new ItemSegment(
@@ -198,9 +199,10 @@ public final class ShowcaseMessageFactory {
                     null,
                     source,
                     backpack.providerId(),
+                    -1,
                     0));
         }
-        // 后面是内部物品（深度 1；数量受 maxContainerContents 限制，校验器兜底）
+        // 后面是内部物品（深度 1；槽位号 = 内容物列表索引，数量受 maxContainerContents 限制，校验器兜底）
         int depth = 1;
         if (depth <= config.maxNestingDepth) {
             int contentLimit = config.maxContainerContents;
@@ -219,6 +221,7 @@ public final class ShowcaseMessageFactory {
                         null,
                         SourceKind.BACKPACK,
                         backpack.providerId(),
+                        added,
                         depth));
                 added++;
             }
@@ -253,6 +256,7 @@ public final class ShowcaseMessageFactory {
                 null,
                 slot.source() == null ? SourceKind.INVENTORY : slot.source(),
                 null,
+                slot.slotIndex(),
                 0);
     }
 
