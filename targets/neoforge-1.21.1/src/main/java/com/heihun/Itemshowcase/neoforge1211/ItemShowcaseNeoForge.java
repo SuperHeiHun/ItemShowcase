@@ -31,7 +31,7 @@ public class ItemShowcaseNeoForge {
         NeoNetwork.register(modBus);
         // 配置加载/热重载事件（Loading 与 Reloading，按 spec 类型分别同步）
         modBus.addListener(this::onModConfigEvent);
-        // 集成注册 + 服务端配置初始同步（CLIENT 配置构造期未加载，仅在事件中同步）
+        // 集成注册（构造期零配置读取：COMMON/CLIENT 配置均只在 ModConfigEvent 中同步）
         ShowcaseServices.init();
 
         // 游戏事件总线：服务端聊天处理（含退出清理）

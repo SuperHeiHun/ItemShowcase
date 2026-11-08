@@ -1,7 +1,6 @@
 package com.heihun.Itemshowcase.neoforge1211;
 
 import com.heihun.Itemshowcase.core.config.ItemShowcaseConfig;
-import com.heihun.Itemshowcase.core.logging.ItemShowcaseLogger;
 import com.heihun.Itemshowcase.core.spi.IntegrationRegistry;
 import com.heihun.Itemshowcase.core.validate.RateLimiter;
 
@@ -23,11 +22,12 @@ public final class ShowcaseServices {
     private ShowcaseServices() {
     }
 
-    /** 集成注册 + 配置初始同步（服务端值；CLIENT 配置在事件中同步）。 */
+    /**
+     * 集成注册。注意：NeoForge 21.1 中 COMMON（服务端）配置在 mod 构造期同样未加载，
+     * 此处绝不读配置值——配置同步只发生在 ModConfigEvent.Loading / Reloading 中。
+     */
     public static void init() {
         com.heihun.Itemshowcase.neoforge1211.server.integration.IntegrationSetup.registerAll(INTEGRATIONS);
-        NeoConfigs.syncServer();
-        ItemShowcaseLogger.info("ItemShowcase 配置已加载");
     }
 
     /** 配置同步后的钩子：仅当限流参数真正变化时重建限流器。 */

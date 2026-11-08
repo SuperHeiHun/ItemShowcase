@@ -133,8 +133,15 @@ public final class NeoConfigs {
         modContainer.registerConfig(ModConfig.Type.CLIENT, CLIENT_SPEC, "itemshowcase-client.toml");
     }
 
-    /** 配置加载/重载事件：把 TOML 值同步回 common-core 配置对象。 */
+    /**
+     * 配置加载/重载事件：把 TOML 值同步回 common-core 配置对象。
+     * isLoaded() 防御：NeoForge 21.1 中 COMMON 配置在 mod 构造期同样未加载，
+     * 若在加载前被调用则保留 common-core 默认值，绝不抛异常。
+     */
     static void syncServer() {
+        if (!SERVER_SPEC.isLoaded()) {
+            return;
+        }
         ItemShowcaseConfig.Server s = ShowcaseServices.serverValues();
         s.allowMacroItem = ALLOW_MACRO_ITEM.get();
         s.allowMacroInventory = ALLOW_MACRO_INVENTORY.get();
@@ -162,6 +169,9 @@ public final class NeoConfigs {
      * 只能在 ModConfigEvent.Loading / Reloading（配置就绪后）调用。
      */
     static void syncClient() {
+        if (!CLIENT_SPEC.isLoaded()) {
+            return;
+        }
         ItemShowcaseConfig.Client c = ShowcaseServices.clientValues();
         c.chatIconRendering = CHAT_ICON_RENDERING.get();
         c.iconSize = ICON_SIZE.get();

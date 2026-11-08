@@ -78,10 +78,14 @@
   （NeoForge 21.1 内置 0.5.5 运行时；编译用 compileOnly com.llamalad7:mixinextras-common:0.4.1——
   注意 0.4.1 包名是 com.llamalad7 无 io.github 前缀）；次要注入点加 require=0 优雅降级不崩游戏；
   Curios neoforge 9.5.1+1.21.1（api 分类器）：CuriosApi.getCuriosInventory(entity) 返回 Optional；
-  **NeoForge 配置加载时机教训**：CLIENT 类型配置在 mod 构造期未加载——构造期只能同步 COMMON（syncServer），
-  CLIENT 值只能在 ModConfigEvent.Loading/Reloading 时同步（syncClient），否则 ConfigValue.get() 抛异常 mod 实例创建失败；
+  **NeoForge 配置加载时机教训（实机二次踩坑后修正）**：**COMMON 和 CLIENT 配置在 mod 构造期都未加载**
+  （ModConfigEvent.Loading 在构造之后才触发）——构造期必须零配置读取，值同步只放在
+  ModConfigEvent.Loading/Reloading（syncServer/syncClient），否则 ConfigValue.get() 抛
+  "Cannot get config value before config is loaded" mod 实例创建失败；防御手段 ModConfigSpec.isLoaded()，
+  加载前保留 common-core 默认值（字段内联默认 + sanitize 兜底）；
   待办：SB/SC 1.21.1 的 cursemaven 8181786/8181881 是 Forge 版（引用 net.minecraftforge.items 不可用），
-  需查 NeoForge 版文件 ID 后恢复 SophisticatedBackpacksIntegration（代码在 git 历史可找回）
+  需查 NeoForge 版文件 ID 后恢复 SophisticatedBackpacksIntegration（代码在 git 历史可找回）；
+  用户整合包（1.21.1 汇流来世，NeoForge 21.1.255）装有 SB/SC/Curios，可作实机集成验证
 - **注意**：用户本地 config/itemshowcase-client.json 里已有旧值会覆盖新默认值（合并加载），调默认值后要提醒用户删旧字段
 - 物品名优先用客户端解码 ItemStack 的 hover name（服务端 plainName 仅回退）
 - 1.20.1 的 mouseScrolled 是 3 参（4 参是 1.20.2+）
