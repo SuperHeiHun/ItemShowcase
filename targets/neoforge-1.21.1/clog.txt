@@ -1,0 +1,64 @@
+﻿Active code page: 65001
+To honour the JVM settings for this build a single-use Daemon process will be forked. For more on this, please refer to https://docs.gradle.org/8.8/userguide/gradle_daemon.html#sec:disabling_the_daemon in the Gradle documentation.
+Daemon will be stopped at the end of the build 
+> Task :createMinecraftArtifacts UP-TO-DATE
+> Task :common-core:compileJava UP-TO-DATE
+
+> Task :compileJava
+.\gradlew.bat : E:\Test\mod\ItemShowcase\targets\neoforge-1.21.1\src\main\java\com\heihun\Itemshowcase\neoforge1211\ser
+ver\ChatHandler.java:64: 错误: 找不到符号
+所在位置 行:1 字符: 1
++ .\gradlew.bat --no-daemon compileJava 2>&1 | Out-File clog.txt -Encod ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (E:\Test\mod\Ite...a:64: 错误: 找不到符号:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+        BroadcastService.broadcast(player.getServer().orElse(null), message);
+                                                     ^
+  符号:   方法 orElse(<空值>)
+  位置: 类 MinecraftServer
+E:\Test\mod\ItemShowcase\targets\neoforge-1.21.1\src\main\java\com\heihun\Itemshowcase\neoforge1211\server\integration\
+CuriosAccessoryProvider.java:63: 错误: 找不到符号
+                    ItemStackView view = new NeoDataViews.NeoItemStackView(stack,
+                    ^
+  符号:   类 ItemStackView
+  位置: 类 CuriosAccessoryProvider
+E:\Test\mod\ItemShowcase\targets\neoforge-1.21.1\src\main\java\com\heihun\Itemshowcase\neoforge1211\server\integration\
+SophisticatedBackpacksIntegration.java:71: 错误: 无法访问IItemHandlerModifiable
+            int slots = inventory.getSlots();
+                                 ^
+  找不到net.minecraftforge.items.IItemHandlerModifiable的类文件
+E:\Test\mod\ItemShowcase\targets\neoforge-1.21.1\src\main\java\com\heihun\Itemshowcase\neoforge1211\server\integration\
+SophisticatedBackpacksIntegration.java:73: 错误: 无法访问ItemStackHandler
+                ItemStack inner = inventory.getStackInSlot(i);
+                                           ^
+  找不到net.minecraftforge.items.ItemStackHandler的类文件
+E:\Test\mod\ItemShowcase\targets\neoforge-1.21.1\src\main\java\com\heihun\Itemshowcase\neoforge1211\server\integration\
+SophisticatedBackpacksIntegration.java:77: 错误: 程序包NeoDataViews不存在
+                contents.add(new NeoDataViews.NeoItemStackView(inner, registries));
+                                             ^
+E:\Test\mod\ItemShowcase\targets\neoforge-1.21.1\src\main\java\com\heihun\Itemshowcase\neoforge1211\server\QuickShowHan
+dler.java:66: 错误: 找不到符号
+        BroadcastService.broadcast(player.getServer().orElse(null), message);
+                                                     ^
+  符号:   方法 orElse(<空值>)
+  位置: 类 MinecraftServer
+注: E:\Test\mod\ItemShowcase\targets\neoforge-1.21.1\src\main\java\com\heihun\Itemshowcase\neoforge1211\client\ChatIconO
+verlay.java使用或覆盖了已过时的 API。
+注: 有关详细信息, 请使用 -Xlint:deprecation 重新编译。
+6 个错误
+
+> Task :compileJava FAILED
+
+FAILURE: Build failed with an exception.
+
+* What went wrong:
+Execution failed for task ':compileJava'.
+> Compilation failed; see the compiler error output for details.
+
+* Try:
+> Run with --info option to get more log output.
+> Run with --scan to get full insights.
+
+BUILD FAILED in 12s
+3 actionable tasks: 1 executed, 2 up-to-date

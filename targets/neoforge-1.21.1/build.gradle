@@ -1,0 +1,94 @@
+// ItemShowcase —— NeoForge 1.21.1 构建目标
+// ModDevGradle（MDG）与其他加载器（ForgeGradle / Loom）的配置完全隔离在各自目录中。
+plugins {
+    id 'net.neoforged.moddev' version '2.0.148'
+}
+
+version = mod_version
+group = mod_group_id
+
+base {
+    archivesName = "itemshowcase-neoforge-${neo_version.split("\\.")[0]}.${neo_version.split("\\.")[1]}"
+}
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(21)
+    }
+}
+
+compileJava {
+    options.encoding = 'UTF-8'
+    options.release = 21
+}
+
+neoForge {
+    version = project.neo_version
+
+    runs {
+        client {
+            client()
+        }
+        server {
+            server()
+        }
+    }
+
+    mods {
+        "${mod_id}" {
+            sourceSet(sourceSets.main)
+        }
+    }
+}
+
+repositories {
+    mavenCentral()
+    maven {
+        name = "Curios"
+        url = uri("https://maven.theillusivec4.top/")
+    }
+    maven {
+        name = "CurseMaven"
+        url = uri("https://www.cursemaven.com/")
+        content { includeGroup "curse.maven" }
+    }
+    maven {
+        name = "IPN-Releases"
+        url = uri("https://maven.ipn-mod.org/releases")
+        content { includeGroup "org.anti_ad.mc" }
+    }
+}
+
+dependencies {
+    // common-core 通过 settings.gradle 的 Composite Build 以源码参与构建
+    implementation 'com.heihun.Itemshowcase:itemshowcase-common-core:1.0.0'
+
+    // ---- 可选集成（运行时检测，缺失时安全降级；1.21.1 全部为 Mojang 官方映射，无需 deobf） ----
+    compileOnly "top.theillusivec4.curios:curios-neoforge:${curios_version}:api"
+    runtimeOnly "top.theillusivec4.curios:curios-neoforge:${curios_version}"
+
+    // Inventory Profiles Next API：@IPNIgnore 注解（展示 GUI 禁用 IPN 按钮），仅编译
+    compileOnly "org.anti_ad.mc:InventoryProfilesNext-neoforge-1.21.1:${ipn_version}"
+
+    // TODO(阶段五)：Sophisticated Backpacks / Core 的 1.21.1 NeoForge 文件 ID 待确认
+    //（cursemaven 8181786/8181881 是 Forge 版，引用 net.minecraftforge.items 无法用于 NeoForge）
+}
+
+// 打包时把 common-core 的类合并进 mod jar（mod 使用方只需要一个 jar）
+tasks.named('jar', Jar).configure {
+    manifest {
+        attributes([
+                'Specification-Title'   : mod_id,
+                'Specification-Version' : '1',
+                'Implementation-Title'  : "ItemShowcase",
+                'Implementation-Version': mod_version,
+                'MixinConfigs'          : 'itemshowcase.mixins.json'
+        ])
+    }
+    from {
+        configurations.runtimeClasspath
+            .filter { it.name.startsWith('itemshowcase-common-core') }
+            .collect { zipTree(it) }
+    }
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+}
