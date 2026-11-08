@@ -60,7 +60,10 @@
 - **宏别名**：MacroType 支持 token 数组，PACK 别名 "[p]"；解析器按主 token 长度降序匹配
 - **限额**：平铺物品 maxItemsPerMessage=54；**容器内部展开独立限额 maxContainerContents=108**
   （depth>=1 在 MessageValidator 单独计数，工厂不消耗消息预算）——解决大背包只显示 54 格
-- 行距：extraLineSpacing 默认 16（行步进 9+16=25px）；文字/图标整体**上移** floorDiv(extra,2)（用户要求向上偏移）
+- 行距：extraLineSpacing 默认 28（行步进 9+28=37px）；文字/图标整体**上移** floorDiv(extra,2)（用户要求向上偏移）
+- **Forge 1.20.1 配置**：已切换到 Forge 原生 TOML（ForgeConfigs：ForgeConfigSpec + ModConfigEvent 自动热重载），
+  config/itemshowcase-common.toml（服务端）+ itemshowcase-client.toml（客户端）；值同步回 common-core 配置对象；
+  JSON ConfigManager 仅剩其他目标版本使用；ModConfigEvent 包路径 = net.minecraftforge.fml.event.config
 - **注意**：用户本地 config/itemshowcase-client.json 里已有旧值会覆盖新默认值（合并加载），调默认值后要提醒用户删旧字段
 - 物品名优先用客户端解码 ItemStack 的 hover name（服务端 plainName 仅回退）
 - 1.20.1 的 mouseScrolled 是 3 参（4 参是 1.20.2+）
