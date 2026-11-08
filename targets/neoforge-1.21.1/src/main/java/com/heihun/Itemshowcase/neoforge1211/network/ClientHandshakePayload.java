@@ -23,6 +23,10 @@ public final class ClientHandshakePayload implements CustomPacketPayload {
     public static final StreamCodec<FriendlyByteBuf, ClientHandshakePayload> STREAM_CODEC =
             StreamCodec.unit(INSTANCE);
 
+    /** 私有构造：unit codec 绑定单例，发送必须复用 INSTANCE（new 会在编码期抛异常断线）。 */
+    private ClientHandshakePayload() {
+    }
+
     @Override
     public Type<? extends CustomPacketPayload> type() {
         return TYPE;

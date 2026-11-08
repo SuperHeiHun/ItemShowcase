@@ -51,8 +51,10 @@ public class ItemShowcaseNeoForge {
         // Loading（首次加载）与 Reloading（外部修改热重载）：按 spec 类型分别同步
         if (event.getConfig().getSpec() == NeoConfigs.SERVER_SPEC) {
             NeoConfigs.syncServer();
+            ItemShowcaseLogger.info("服务端配置已同步: " + event.getConfig().getFileName());
         } else if (event.getConfig().getSpec() == NeoConfigs.CLIENT_SPEC) {
             NeoConfigs.syncClient();
+            ItemShowcaseLogger.info("客户端配置已同步: " + event.getConfig().getFileName());
         }
     }
 

@@ -50,9 +50,9 @@ public final class NeoNetwork {
         PacketDistributor.sendToPlayer(receiver, new ShowcaseMessagePayload(EnvelopeCodec.encode(envelope)));
     }
 
-    /** 客户端：发送能力握手。 */
+    /** 客户端：发送能力握手（unit codec 要求复用单例实例，不可 new）。 */
     public static void sendHandshake() {
-        PacketDistributor.sendToServer(new ClientHandshakePayload());
+        PacketDistributor.sendToServer(ClientHandshakePayload.INSTANCE);
     }
 
     /** 客户端：发送 Ctrl+Enter 槽位请求。 */
