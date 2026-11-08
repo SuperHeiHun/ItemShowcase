@@ -165,14 +165,17 @@ public final class ChatIconOverlay {
     /**
      * 扫描 FormattedCharSequence：按“相同样式的连续字符段”重建文本，
      * 检测占位 run（全是空格、长度 >= 4、颜色为编码颜色）。
-     * 段的屏幕像素起点用 StringSplitter 对“前缀子序列”的度量计算——
-     * 前缀包含原样式，与聊天布局的宽度计算完全一致。
+     *
+     * <p>重要：不使用 FormattedCharSink 的 index 参数（换行后的行序列中
+     * 该索引不保证是行内序号），而是自计行内序号；段屏幕起点用
+     * StringSplitter 对“行内前缀子序列”的度量计算，与聊天布局一致。</p>
      */
     private static LineScan scanLine(Font font, FormattedCharSequence line) {
         LineScan scan = new LineScan();
         List<IndexedChar> chars = new ArrayList<>();
+        int[] seq = {0};
         line.accept((index, style, codePoint) -> {
-            chars.add(new IndexedChar(index, style, codePoint == 0 ? ' ' : codePoint));
+            chars.add(new IndexedChar(seq[0]++, style, codePoint == 0 ? ' ' : codePoint));
             return true;
         });
         if (chars.isEmpty()) {
@@ -221,11 +224,22 @@ public final class ChatIconOverlay {
         if (ShowcaseMessageHandler.lookup(id, index) == null) {
             return; // 缓存已淘汰
         }
-        // 前缀像素宽度：度量 [0, startIndex) 的子序列
-        FormattedCharSequence prefix = consumer ->
-                line.accept((idx, charStyle, codePoint) ->
-                        idx < startIndex ? consumer.accept(idx, charStyle, codePoint) : true);
+        // 前缀像素宽度：按行内序号度量 [0, startIndex) 的子序列。
+        // 二次遍历用独立计数器截取前缀，保证与首次收集时序一致。
+        FormattedCharSequence prefix = consumer -> {
+            int[] count = {0};
+            return line.accept((idx, charStyle, codePoint) -> {
+                int position = count[0]++;
+                if (position < startIndex) {
+                    return consumer.accept(position, charStyle, codePoint);
+                }
+                return true;
+            });
+        };
         int startPx = net.minecraft.util.Mth.floor(splitter.stringWidth(prefix));
+        if (startPx < 0) {
+            startPx = 0;
+        }
         scan.icons.add(new IconRun(startPx, id, index));
     }
 

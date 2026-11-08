@@ -133,23 +133,31 @@ public final class ShowcaseMessageHandler {
                     if (itemIndex >= config.maxRenderedItems) {
                         break;
                     }
+                    DisplayItem display = toDisplayItem(item);
                     line.append(Component.literal(" "));
                     line.append(placeholder(messageId, itemIndex));
                     line.append(Component.literal("[").withStyle(ChatFormatting.DARK_GRAY));
-                    line.append(Component.literal(item.plainName()).withStyle(ChatFormatting.AQUA));
+                    line.append(Component.literal(displayName(display, item)).withStyle(ChatFormatting.AQUA));
                     if (item.count() > 1) {
                         line.append(Component.literal(" x" + item.count()).withStyle(ChatFormatting.GRAY));
                     }
                     line.append(Component.literal("]").withStyle(ChatFormatting.DARK_GRAY));
-                    items.add(toDisplayItem(item));
+                    items.add(display);
                     itemIndex++;
                 }
             } else if (segment instanceof ItemSegment) {
                 ItemSegment item = (ItemSegment) segment;
                 if (itemIndex < config.maxRenderedItems) {
+                    DisplayItem display = toDisplayItem(item);
                     line.append(Component.literal(" "));
                     line.append(placeholder(messageId, itemIndex));
-                    items.add(toDisplayItem(item));
+                    line.append(Component.literal("[").withStyle(ChatFormatting.DARK_GRAY));
+                    line.append(Component.literal(displayName(display, item)).withStyle(ChatFormatting.AQUA));
+                    if (item.count() > 1) {
+                        line.append(Component.literal(" x" + item.count()).withStyle(ChatFormatting.GRAY));
+                    }
+                    line.append(Component.literal("]").withStyle(ChatFormatting.DARK_GRAY));
+                    items.add(display);
                     itemIndex++;
                 }
             } else if (segment instanceof SectionSegment) {
@@ -172,6 +180,21 @@ public final class ShowcaseMessageHandler {
             ItemShowcaseLogger.warn("物品数据解码失败: " + item.item().itemIdHint(), decodeFailure);
         }
         return new DisplayItem(stack, item.source(), item.slotInfo());
+    }
+
+    /**
+     * 物品显示名：优先用客户端解码后的真实 ItemStack（客户端本地语言解析，
+     * 对 MOD 物品绝对正确）；解码失败时回退服务端生成的纯文本名。
+     */
+    private static String displayName(DisplayItem display, ItemSegment fallback) {
+        ItemStack stack = display.stack();
+        if (!stack.isEmpty()) {
+            String clientName = stack.getHoverName().getString();
+            if (clientName != null && !clientName.isEmpty()) {
+                return clientName;
+            }
+        }
+        return fallback.plainName();
     }
 
     /** 文本片段 → 客户端组件（翻译键由客户端本地语言解析）。 */
