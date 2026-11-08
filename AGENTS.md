@@ -73,6 +73,10 @@
   1.21.1 无 MinecraftServer.getServer() → 用 NeoForge ServerLifecycleHooks.getCurrentServer() 或 player.level().getServer()；
   组件化：setHoverName → stack.set(DataComponents.CUSTOM_NAME,..)，玩家头 → DataComponents.PROFILE + ResolvableProfile(GameProfile)；
   NeoForge 运行时 = Mojang 官方映射 → mixin 无需 refmap；
+  **Mixin 冲突教训**：聊天行绘制不要用 @Redirect（用户实机环境 malilib/tweakeroo 等也注入
+  ChatComponent.render 的 drawString → 0/1 targets 硬崩溃）；用 MixinExtras @WrapOperation
+  （NeoForge 21.1 内置 0.5.5 运行时；编译用 compileOnly com.llamalad7:mixinextras-common:0.4.1——
+  注意 0.4.1 包名是 com.llamalad7 无 io.github 前缀）；次要注入点加 require=0 优雅降级不崩游戏；
   Curios neoforge 9.5.1+1.21.1（api 分类器）：CuriosApi.getCuriosInventory(entity) 返回 Optional；
   待办：SB/SC 1.21.1 的 cursemaven 8181786/8181881 是 Forge 版（引用 net.minecraftforge.items 不可用），
   需查 NeoForge 版文件 ID 后恢复 SophisticatedBackpacksIntegration（代码在 git 历史可找回）
