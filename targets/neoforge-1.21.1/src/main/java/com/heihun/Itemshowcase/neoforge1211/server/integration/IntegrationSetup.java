@@ -17,6 +17,9 @@ public final class IntegrationSetup {
         if (ModList.get().isLoaded("curios")) {
             registry.registerAccessory(new CuriosAccessoryProvider());
         }
-        // TODO(阶段五)：SophisticatedBackpacksIntegration 待 SB NeoForge 1.21.1 依赖坐标确认后启用
+        if (ModList.get().isLoaded("sophisticatedbackpacks")
+                && ModList.get().isLoaded("sophisticatedcore")) {
+            registry.registerContainer(new SophisticatedBackpacksIntegration());
+        }
     }
 }

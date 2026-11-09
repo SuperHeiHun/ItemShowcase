@@ -57,6 +57,11 @@ repositories {
         url = uri("https://maven.ipn-mod.org/releases")
         content { includeGroup "org.anti_ad.mc" }
     }
+    maven {
+        name = "Modrinth"
+        url = uri("https://api.modrinth.com/maven")
+        content { includeGroup "maven.modrinth" }
+    }
 }
 
 dependencies {
@@ -73,8 +78,11 @@ dependencies {
     // Inventory Profiles Next API：@IPNIgnore 注解（展示 GUI 禁用 IPN 按钮），仅编译
     compileOnly "org.anti_ad.mc:InventoryProfilesNext-neoforge-1.21.1:${ipn_version}"
 
-    // TODO(阶段五)：Sophisticated Backpacks / Core 的 1.21.1 NeoForge 文件 ID 待确认
-    //（cursemaven 8181786/8181881 是 Forge 版，引用 net.minecraftforge.items 无法用于 NeoForge）
+    // Sophisticated Backpacks / Core（Modrinth Maven，NeoForge 1.21.1 构建；运行时检测，缺失时安全降级）
+    compileOnly "maven.modrinth:sophisticated-backpacks:${sb_version}"
+    compileOnly "maven.modrinth:sophisticated-core:${sc_version}"
+    runtimeOnly "maven.modrinth:sophisticated-backpacks:${sb_version}"
+    runtimeOnly "maven.modrinth:sophisticated-core:${sc_version}"
 }
 
 // 打包时把 common-core 的类合并进 mod jar（mod 使用方只需要一个 jar）

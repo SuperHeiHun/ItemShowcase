@@ -83,9 +83,12 @@
   ModConfigEvent.Loading/Reloading（syncServer/syncClient），否则 ConfigValue.get() 抛
   "Cannot get config value before config is loaded" mod 实例创建失败；防御手段 ModConfigSpec.isLoaded()，
   加载前保留 common-core 默认值（字段内联默认 + sanitize 兜底）；
-  待办：SB/SC 1.21.1 的 cursemaven 8181786/8181881 是 Forge 版（引用 net.minecraftforge.items 不可用），
-  需查 NeoForge 版文件 ID 后恢复 SophisticatedBackpacksIntegration（代码在 git 历史可找回）；
+  待办：~~SB/SC 1.21.1 集成~~（已完成：改用 **Modrinth Maven** `maven.modrinth:sophisticated-backpacks:1.21.1-3.26.20.2244`
+  / `sophisticated-core:1.21.1-1.5.31.2460`（与用户整合包版本精确一致；cursemaven 8181786/8181881 是 Forge 版不可用）；
+  1.21.1 SB API 与 1.20.1 相同（new BackpackWrapper(stack) + getInventoryHandler() extends ItemStackHandler），
+  SophisticatedBackpacksIntegration 已注册，[i]/[c] 背包内部展开可用）；
   用户整合包（1.21.1 汇流来世，NeoForge 21.1.255）装有 SB/SC/Curios，可作实机集成验证；
+  Curios 链路（[c] 宏→CuriosAccessoryProvider）NeoForge 版已接好，此前实机"看不到效果"系图标渲染 bug，需复测；
   **NeoForge unit codec 教训**：无字段 payload 用 StreamCodec.unit(INSTANCE) 时，发送必须复用 INSTANCE
   （PacketDistributor.sendToServer(ClientHandshakePayload.INSTANCE)）——new 新实例会在编码期抛
   "Can't encode '新实例', expected '单例'" → EncoderException → 进服断线（Forge 1.20.1 SimpleChannel

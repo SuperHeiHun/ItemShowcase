@@ -42,7 +42,41 @@
 
 ## 阶段四：Fabric 1.20.1 适配（复用 common-core）
 
+- [ ] Loom + Fabric API 目标工程搭建（targets/fabric-1.20.1）
+- [ ] 聊天渲染 Mixin 移植（ChatComponent/ChatScreen）
+- [ ] Fabric networking（C2S 握手 / 槽位请求 / S2C 展示消息）
+- [ ] Curios → Trinkets 集成（TrinketsProvider）
+- [ ] 宏解析 + Ctrl+Enter + 插件样式 GUI 移植
+
 ## 阶段五：1.21.1 适配（Forge / NeoForge / Fabric，Data Components 序列化 + 新聊天渲染 API）
+
+### NeoForge 1.21.1（已完成，待实机复测 SB/SC）
+
+- [x] 目标工程搭建（ModDevGradle 2.0.148 + NeoForge 21.1.265 + Java 21）
+- [x] dc1211 序列化（ItemStack.STREAM_CODEC + RegistryAccess）
+- [x] PayloadRegistrar 网络（C2S 握手 / 槽位请求 / S2C 展示消息）
+- [x] 聊天渲染（ChatLineIconMixin @WrapOperation + ChatComponentMixin 行距 + ChatScreenMixin 悬停/点击）
+- [x] 图标渲染修复（@At 包名笔误 net.minecraft.client.gui→net.minecraft.util.FormattedCharSequence）
+- [x] 行距文字居中（上移 floorDiv(extra,2)+1 修正原版 1px 底部偏移）
+- [x] 实机崩溃修复：构造期零配置读取（COMMON 也未加载）、握手包 unit codec 单例、Envelope 双重包裹解码失败
+- [x] 插件样式 GUI（SnapshotViewerScreen 只读 + @IPNIgnore + 分页）
+- [x] Curios 集成（9.5.1+1.21.1，CuriosAccessoryProvider，[c] 宏）
+- [x] Sophisticated Backpacks 集成（3.26.20.2244，Modrinth Maven 坐标，[i]/[c] 背包内部展开）
+- [ ] 实机复测：[i]/[inv]/[ec]/[c]/[pack] 全宏 + 图标 + 居中 + GUI + Ctrl+Enter + SB 背包展开
+
+### Forge 1.21.1
+
+- [ ] 目标工程搭建（ForgeGradle 6 + Forge 1.21.1）
+- [ ] 网络与渲染移植（参照 NeoForge 版，注意 Forge 侧 mixin refmap 与事件差异）
+
+### Fabric 1.21.1
+
+- [ ] 目标工程搭建（Loom + Fabric API，dc1211 序列化复用）
+- [ ] Trinkets / Accessories 集成（AccessoriesProvider）
+
+> 依赖坐标备忘：SB `maven.modrinth:sophisticated-backpacks:1.21.1-3.26.20.2244`、
+> SC `maven.modrinth:sophisticated-core:1.21.1-1.5.31.2460`（Modrinth Maven，精确匹配用户整合包版本；
+> cursemaven 8181786/8181881 是 Forge 版不可用）。Curios `top.theillusivec4.curios:curios-neoforge:9.5.1+1.21.1`。
 
 ## 阶段六：1.16.5 适配（Forge / Fabric，Java 8 + 旧 NBT + 旧聊天组件）
 
