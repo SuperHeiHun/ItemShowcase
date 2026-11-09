@@ -11,29 +11,6 @@
 容器宏（`[inv]`/`[ec]`/`[c]`/`[p]` 及容器展开的 `[i]`）在聊天中显示为**可点击入口**，
 点击打开原版箱子样式的**只读快照 GUI**（支持翻页，分页按钮位于 GUI 上方）。
 
-## 当前进度
-
-| 目标 | 状态 |
-|------|------|
-| common-core（Java 8 字节码，41 测试） | ✅ 完成 |
-| Forge 1.20.1（完整功能 + Curios/SB 集成 + 快照 GUI） | ✅ 完成 |
-| NeoForge 1.21.1（完整功能 + Curios/SB 集成 + 快照 GUI） | ✅ 完成（实机验证中） |
-| Fabric 1.20.1 | ⏳ 阶段四（下一步） |
-| Forge / Fabric 1.21.1 | ⏳ 阶段五剩余 |
-| Forge / Fabric 1.16.5 | ⏳ 阶段六 |
-
-## 支持目标（7 个构建）
-
-| Minecraft | Loader | Java | 目录 |
-|-----------|--------|------|------|
-| 1.16.5 | Forge | 8 | `targets/forge-1.16.5` |
-| 1.16.5 | Fabric | 8 | `targets/fabric-1.16.5` |
-| 1.20.1 | Forge | 17 | `targets/forge-1.20.1` |
-| 1.20.1 | Fabric | 17 | `targets/fabric-1.20.1` |
-| 1.21.1 | Forge | 21 | `targets/forge-1.21.1` |
-| 1.21.1 | NeoForge | 21 | `targets/neoforge-1.21.1` |
-| 1.21.1 | Fabric | 21 | `targets/fabric-1.21.1` |
-
 ## 仓库结构（按规范分层）
 
 ```
@@ -62,10 +39,6 @@ docs/               架构说明、阶段计划、兼容性矩阵、安装文档
 ## 许可证
 
 本项目以 **GPL-3.0-or-later**（GNU 通用公共许可证 v3 或更新版本）发布，完整文本见 [LICENSE](LICENSE)。
-
-## 开发阶段
-
-见 [docs/PHASES.md](docs/PHASES.md)。
 
 ## 构建
 
