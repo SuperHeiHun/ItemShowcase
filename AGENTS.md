@@ -107,7 +107,11 @@
   （targetCount 只在构造器置 0），真信号是 (0/1) succeeded；
   @Inject 与 @WrapOperation 混居同一 mixin 类**不是**问题（之前归因错误，已证伪）；拆分保留但非必需；
   文字在加高槽内居中 = 上移 floorDiv(extra,2)+1（+1 修正原版槽内自带的 1px 底部偏移，extra=0 时不偏移）；
-  mixin 内加一次性日志（"聊天行渲染钩子已生效"）用于实机确认钩子真实生效
+  mixin 内加一次性日志（"聊天行渲染钩子已生效"）用于实机确认钩子真实生效；
+  **快照 GUI 小容器越界教训**：applyPage 曾按固定 PAGE_SIZE=54 写入 rows<6 的小查看器容器（rows*9 格）
+  → setItem 越界抛 IndexOutOfBoundsException → 被 Not Enough Crashes 吞掉 → "点击没效果 + 卡一下"且无崩溃日志；
+  排查线索：debug.log 的 "Ignoring click in mismatching container"（说明 GUI 其实开过/点击进到了容器）；
+  分页步长必须 = 查看器实际行数×9；分页按钮已移到 GUI 上方（页码两侧）
 - **注意**：用户本地 config/itemshowcase-client.json 里已有旧值会覆盖新默认值（合并加载），调默认值后要提醒用户删旧字段
 - 物品名优先用客户端解码 ItemStack 的 hover name（服务端 plainName 仅回退）
 - 1.20.1 的 mouseScrolled 是 3 参（4 参是 1.20.2+）
