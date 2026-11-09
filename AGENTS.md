@@ -115,6 +115,9 @@
 - **注意**：用户本地 config/itemshowcase-client.json 里已有旧值会覆盖新默认值（合并加载），调默认值后要提醒用户删旧字段
 - 物品名优先用客户端解码 ItemStack 的 hover name（服务端 plainName 仅回退）
 - 1.20.1 的 mouseScrolled 是 3 参（4 参是 1.20.2+）
+- **协议与图标**：项目协议 = GPL-3.0-or-later（LICENSE 为 SPDX 全文）；新目标 mods.toml 必须写
+  `license="GPL-3.0-or-later"` + `logoFile="itemshowcase_logo.png"`（128px 图标在 resources 根，双份拷贝）；
+  gnu.org 不可达时 GPLv3 全文可从 github SPDX 仓库取（spdx/license-list-data/text/GPL-3.0-only.txt）
 
 ## 用户偏好
 
