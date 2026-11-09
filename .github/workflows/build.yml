@@ -1,0 +1,80 @@
+# ItemShowcase 构建工作流：common-core + Forge 1.20.1 + NeoForge 1.21.1
+# 说明：本仓库各目标为独立 Gradle 构建；CI 上会剥离 gradle.properties 里的本机 JDK 路径，
+#       工具链 JDK 由 setup-java 显式安装并通过 installations.paths 注入。
+
+name: Build
+
+on:
+  push:
+    branches: ["**"]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: Build ${{ matrix.name }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: common-core
+            path: common-core
+            java: 21
+            extra-java: ""
+          - name: forge-1.20.1
+            path: targets/forge-1.20.1
+            java: 17
+            # composite build 中 common-core 需要 JDK 21 工具链
+            extra-java: 21
+          - name: neoforge-1.21.1
+            path: targets/neoforge-1.21.1
+            java: 21
+            extra-java: ""
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # 附加工具链 JDK（先装，随后主 JDK 会覆盖 JAVA_HOME）
+      - name: Set up JDK ${{ matrix.extra-java }} (toolchain)
+        if: matrix.extra-java != ''
+        uses: actions/setup-java@v4
+        id: jdk-extra
+        with:
+          distribution: temurin
+          java-version: ${{ matrix.extra-java }}
+
+      - name: Set up JDK ${{ matrix.java }}
+        uses: actions/setup-java@v4
+        id: jdk-main
+        with:
+          distribution: temurin
+          java-version: ${{ matrix.java }}
+
+      - name: Setup Gradle cache
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Configure gradle.properties for CI
+        working-directory: ${{ matrix.path }}
+        run: |
+          # 剥离本机专属的 JDK 配置（Windows 路径在 CI 上无效）
+          sed -i '/^org.gradle.java.home/d' gradle.properties || true
+          sed -i '/^org.gradle.java.installations.paths/d' gradle.properties || true
+          # 注入 CI 工具链路径（多 JDK 的目标需要；单 JDK 目标退化为仅当前 JVM）
+          if [ -n "${{ matrix.extra-java }}" ]; then
+            echo "org.gradle.java.installations.paths=${{ steps.jdk-main.outputs.path }},${{ steps.jdk-extra.outputs.path }}" >> gradle.properties
+          fi
+
+      - name: Build
+        working-directory: ${{ matrix.path }}
+        run: ./gradlew --no-daemon build
+
+      - name: Upload jars
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.name }}-jars
+          path: |
+            ${{ matrix.path }}/build/libs/*.jar
+            ${{ matrix.path }}/*/build/libs/*.jar
+          if-no-files-found: ignore
