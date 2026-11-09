@@ -81,3 +81,45 @@ jobs:
             ${{ matrix.path }}/build/libs/*.jar
             ${{ matrix.path }}/*/build/libs/*.jar
           if-no-files-found: ignore
+
+  # master 推送构建成功后：滚动更新 "latest" 预发布 Release（附件为各目标 jar）
+  release:
+    name: Publish Release
+    needs: build
+    if: github.event_name == 'push' && github.ref == 'refs/heads/master'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          pattern: '*-jars'
+          path: dist
+          merge-multiple: true
+
+      - name: Move latest tag
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git tag -f latest
+          git push -f origin latest
+
+      - name: Publish GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: latest
+          name: "Latest Build (run #${{ github.run_number }})"
+          prerelease: true
+          files: dist/**/*.jar
+          body: |
+            自动构建 run #${{ github.run_number }}（commit ${{ github.sha }}）。
+
+            | 附件 | 用途 |
+            |------|------|
+            | itemshowcase-neoforge-21.1-*.jar | NeoForge 1.21.1 |
+            | itemshowcase-forge-1.20.1-*.jar | Forge 1.20.1 |
+            | itemshowcase-common-core-*.jar | 公共库（玩家无需安装） |
