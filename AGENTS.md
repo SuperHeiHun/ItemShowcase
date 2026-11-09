@@ -115,6 +115,11 @@
 - **注意**：用户本地 config/itemshowcase-client.json 里已有旧值会覆盖新默认值（合并加载），调默认值后要提醒用户删旧字段
 - 物品名优先用客户端解码 ItemStack 的 hover name（服务端 plainName 仅回退）
 - 1.20.1 的 mouseScrolled 是 3 参（4 参是 1.20.2+）
+- **远程仓库与 CI**：origin = github.com/SuperHeiHun/ItemShowcase（分支 master）；
+  推送用本地脚本 push.ps1（已 gitignore）；CI = .github/workflows/build.yml（矩阵 common-core@21 /
+  forge-1.20.1@17+21 工具链 / neoforge-1.21.1@21，ubuntu；CI 上 sed 剥离 gradle.properties 的
+  org.gradle.java.home / installations.paths 本机路径，多 JDK 目标用 setup-java 的 outputs.path 注入）；
+  common-core 已生成 Gradle wrapper（9.1.0）供 CI 使用
 - **协议与图标**：项目协议 = GPL-3.0-or-later（LICENSE 为 SPDX 全文）；新目标 mods.toml 必须写
   `license="GPL-3.0-or-later"` + `logoFile="itemshowcase_logo.png"`（128px 图标在 resources 根，双份拷贝）；
   gnu.org 不可达时 GPLv3 全文可从 github SPDX 仓库取（spdx/license-list-data/text/GPL-3.0-only.txt）
