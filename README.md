@@ -59,6 +59,10 @@ docs/               架构说明、阶段计划、兼容性矩阵、安装文档
 - 可选集成依赖坐标：Curios（作者 Maven）、Sophisticated Backpacks / Core（Modrinth Maven，
   1.21.1 为 `maven.modrinth:sophisticated-backpacks:1.21.1-3.26.20.2244` 等，精确匹配常用版本）。
 
+## 许可证
+
+本项目以 **GPL-3.0-or-later**（GNU 通用公共许可证 v3 或更新版本）发布，完整文本见 [LICENSE](LICENSE)。
+
 ## 开发阶段
 
 见 [docs/PHASES.md](docs/PHASES.md)。
