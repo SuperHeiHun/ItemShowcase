@@ -34,8 +34,7 @@ public abstract class ChatLineIconMixin {
             method = "render(Lnet/minecraft/client/gui/GuiGraphics;IIIZ)V",
             at = @At(
                     value = "INVOKE",
-                    target = "Lnet/minecraft/client/gui/GuiGraphics;drawString(Lnet/minecraft/client/gui/Font;Lnet/minecraft/client/gui/FormattedCharSequence;III)I"),
-            require = 0)
+                    target = "Lnet/minecraft/client/gui/GuiGraphics;drawString(Lnet/minecraft/client/gui/Font;Lnet/minecraft/client/gui/FormattedCharSequence;III)I"))
     private int itemshowcase$drawLineWithIcons(GuiGraphics instance, Font font, FormattedCharSequence line,
                                                int x, int y, int color, Operation<Integer> original) {
         if (!itemshowcase$loggedHookActive) {
