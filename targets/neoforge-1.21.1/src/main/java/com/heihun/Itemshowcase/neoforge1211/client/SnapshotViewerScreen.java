@@ -38,12 +38,13 @@ public final class SnapshotViewerScreen extends ContainerScreen {
 
     private static final int COLUMNS = 9;
     private static final int MAX_ROWS = 6;
-    private static final int PAGE_SIZE = COLUMNS * MAX_ROWS;
     private static final int LOCAL_CONTAINER_ID = 1;
 
     private final List<ItemStack> allItems;
     private final ItemStack[][] structuredSlots;
     private final int structuredRows;
+    /** 分页步长 = 查看器实际行数 × 9（与容器大小一致，小查看器也能正确翻页）。 */
+    private final int pageStride;
 
     private int page = 0;
     private int totalPages = 1;
@@ -56,7 +57,8 @@ public final class SnapshotViewerScreen extends ContainerScreen {
         this.allItems = allItems;
         this.structuredSlots = structuredSlots;
         this.structuredRows = structuredRows;
-        this.totalPages = Math.max(1, (allItems.size() + PAGE_SIZE - 1) / PAGE_SIZE);
+        this.pageStride = Math.max(1, structuredRows * COLUMNS);
+        this.totalPages = Math.max(1, (allItems.size() + this.pageStride - 1) / this.pageStride);
     }
 
     /** 打开快照查看界面（仅客户端；按入口类型选择布局）。 */
@@ -171,7 +173,7 @@ public final class SnapshotViewerScreen extends ContainerScreen {
         minecraft.setScreen(screen);
     }
 
-    /** 将当前页物品写入容器。 */
+    /** 将当前页物品写入容器（严格按容器大小遍历，绝不越界）。 */
     private void applyPage(SimpleContainer container) {
         container.clearContent();
         if (this.structuredSlots != null) {
@@ -183,8 +185,9 @@ public final class SnapshotViewerScreen extends ContainerScreen {
             }
             return;
         }
-        int start = this.page * PAGE_SIZE;
-        for (int i = 0; i < PAGE_SIZE; i++) {
+        int start = this.page * this.pageStride;
+        int slots = Math.min(container.getContainerSize(), this.pageStride);
+        for (int i = 0; i < slots; i++) {
             int index = start + i;
             container.setItem(i, index < this.allItems.size() ? this.allItems.get(index) : ItemStack.EMPTY);
         }
@@ -238,12 +241,14 @@ public final class SnapshotViewerScreen extends ContainerScreen {
     protected void init() {
         super.init();
         if (this.totalPages > 1) {
+            // 分页控件置于 GUI 上方：[<] 页码 [>]（与页码文本同一行、居中两侧）
+            int centerX = this.leftPos + this.imageWidth / 2;
             this.prevButton = addRenderableWidget(Button.builder(
                     Component.literal("<"), button -> flipPage(-1))
-                    .bounds(this.leftPos - 24, this.topPos + 4, 20, 20).build());
+                    .bounds(centerX - 46, this.topPos - 30, 20, 20).build());
             this.nextButton = addRenderableWidget(Button.builder(
                     Component.literal(">"), button -> flipPage(1))
-                    .bounds(this.leftPos + this.imageWidth + 4, this.topPos + 4, 20, 20).build());
+                    .bounds(centerX + 26, this.topPos - 30, 20, 20).build());
         }
     }
 
