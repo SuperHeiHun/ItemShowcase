@@ -34,7 +34,9 @@ public abstract class ChatLineIconMixin {
             method = "render(Lnet/minecraft/client/gui/GuiGraphics;IIIZ)V",
             at = @At(
                     value = "INVOKE",
-                    target = "Lnet/minecraft/client/gui/GuiGraphics;drawString(Lnet/minecraft/client/gui/Font;Lnet/minecraft/client/gui/FormattedCharSequence;III)I"))
+                    // 注意：FormattedCharSequence 在 net.minecraft.util 包（与 Forge 1.20.1 参考实现一致）；
+                    // 此前误写为 net.minecraft.client.gui.FormattedCharSequence 导致匹配 0 目标。
+                    target = "Lnet/minecraft/client/gui/GuiGraphics;drawString(Lnet/minecraft/client/gui/Font;Lnet/minecraft/util/FormattedCharSequence;III)I"))
     private int itemshowcase$drawLineWithIcons(GuiGraphics instance, Font font, FormattedCharSequence line,
                                                int x, int y, int color, Operation<Integer> original) {
         if (!itemshowcase$loggedHookActive) {

@@ -96,8 +96,13 @@
   **Mixin 静默失效排查法**：整合包 versions 目录下 `.mixin.out\class\` 有混合后字节码导出，
   javap 直接确认注入是否真的织入（处理器被复制 ≠ 调用点被改写）；占位 run 拍平/检测逻辑可用
   独立 Java 程序 + compiledWithNeoForge jar 离线验证（需补 en_us.json 资源）；
-  **@Inject 与 @WrapOperation 混居同一 mixin 类的坑**：MixinExtras 0.5.5 延迟注入阶段 wrap 的
-  调用点改写被静默跳过（require=0 掩盖），拆成独立 mixin 类后正常（justzoom 对照：纯 wrap 类正常）；
+  **@At 字符串逐字符核对教训（本次真根因）**：1.21.1 移植时 @At target 把 FormattedCharSequence 的包名
+  误写为 net.minecraft.client.gui（实为 net.minecraft.util）→ 搜索 0 节点 → require=0 静默跳过（图标/上移全失效），
+  require=1 则启动崩溃报 "(0/1) succeeded. Scanned 0 target(s). No refMap loaded"；
+  handler 签名用的是正确导入所以编译不报错，只有 @At 字符串错——**移植 @At 必须从参考实现原样复制，
+  并与运行时字节码（javap 指令描述符）逐字符比对**；「Scanned 0 target(s)」在此 mixin 版本是恒定文案
+  （targetCount 只在构造器置 0），真信号是 (0/1) succeeded；
+  @Inject 与 @WrapOperation 混居同一 mixin 类**不是**问题（之前归因错误，已证伪）；拆分保留但非必需；
   文字在加高槽内居中 = 上移 floorDiv(extra,2)+1（+1 修正原版槽内自带的 1px 底部偏移，extra=0 时不偏移）；
   mixin 内加一次性日志（"聊天行渲染钩子已生效"）用于实机确认钩子真实生效
 - **注意**：用户本地 config/itemshowcase-client.json 里已有旧值会覆盖新默认值（合并加载），调默认值后要提醒用户删旧字段
