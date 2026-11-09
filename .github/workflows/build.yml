@@ -59,8 +59,11 @@ jobs:
         working-directory: ${{ matrix.path }}
         run: |
           # 剥离本机专属的 JDK 配置（Windows 路径在 CI 上无效）
-          sed -i '/^org.gradle.java.home/d' gradle.properties || true
-          sed -i '/^org.gradle.java.installations.paths/d' gradle.properties || true
+          sed -i -e '/^org.gradle.java.home/d' -e '/^org.gradle.java.installations.paths/d' gradle.properties || true
+          # composite 构建里的 common-core 自带同样的本机路径，一并剥离
+          if [ -f ../../common-core/gradle.properties ]; then
+            sed -i -e '/^org.gradle.java.home/d' -e '/^org.gradle.java.installations.paths/d' ../../common-core/gradle.properties || true
+          fi
           # 注入 CI 工具链路径（多 JDK 的目标需要；单 JDK 目标退化为仅当前 JVM）
           if [ -n "${{ matrix.extra-java }}" ]; then
             echo "org.gradle.java.installations.paths=${{ steps.jdk-main.outputs.path }},${{ steps.jdk-extra.outputs.path }}" >> gradle.properties
