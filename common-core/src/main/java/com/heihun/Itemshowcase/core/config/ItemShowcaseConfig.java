@@ -124,6 +124,10 @@ public interface ItemShowcaseConfig {
          * INSERT_MACRO = 在聊天输入框插入 [i] 占位。
          */
         public String quickShowMode = "DIRECT_SEND";
+        /** 容器 GUI 选中高亮颜色（十六进制 RGB，如 39FF14 = 亮绿）。 */
+        public String highlightColor = "39FF14";
+        /** 默认高亮颜色（亮绿），配置非法时回退。 */
+        public static final String DEFAULT_HIGHLIGHT_COLOR = "39FF14";
 
         @Override
         public void applyDefaults() {
@@ -138,6 +142,7 @@ public interface ItemShowcaseConfig {
             extraLineSpacing = 8;
             clickViewGui = true;
             quickShowMode = "DIRECT_SEND";
+            highlightColor = DEFAULT_HIGHLIGHT_COLOR;
         }
 
         @Override
@@ -148,6 +153,38 @@ public interface ItemShowcaseConfig {
             extraLineSpacing = clamp(extraLineSpacing, 0, 32);
             if (!"DIRECT_SEND".equals(quickShowMode) && !"INSERT_MACRO".equals(quickShowMode)) {
                 quickShowMode = "DIRECT_SEND";
+            }
+            if (tryParseHexColor(highlightColor) == null) {
+                highlightColor = DEFAULT_HIGHLIGHT_COLOR;
+            }
+        }
+
+        /** 选中高亮颜色 → ARGB（alpha=255）；非法配置回退默认亮绿。 */
+        public int highlightColorArgb() {
+            Integer parsed = tryParseHexColor(highlightColor);
+            return parsed == null ? (0xFF000000 | Integer.parseInt(DEFAULT_HIGHLIGHT_COLOR, 16)) : parsed;
+        }
+
+        /** 解析 6 位十六进制 RGB（允许 # 前缀）；非法返回 null。 */
+        private static Integer tryParseHexColor(String value) {
+            if (value == null) {
+                return null;
+            }
+            String hex = value.trim();
+            if (hex.startsWith("#")) {
+                hex = hex.substring(1);
+            }
+            if (hex.length() != 6) {
+                return null;
+            }
+            try {
+                int rgb = Integer.parseInt(hex, 16);
+                if (rgb < 0) {
+                    return null;
+                }
+                return 0xFF000000 | rgb;
+            } catch (NumberFormatException malformed) {
+                return null;
             }
         }
 

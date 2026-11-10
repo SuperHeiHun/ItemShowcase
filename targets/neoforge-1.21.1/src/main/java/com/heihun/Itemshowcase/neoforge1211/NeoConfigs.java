@@ -52,6 +52,7 @@ public final class NeoConfigs {
     private static final ModConfigSpec.IntValue EXTRA_LINE_SPACING;
     private static final ModConfigSpec.BooleanValue CLICK_VIEW_GUI;
     private static final ModConfigSpec.EnumValue<QuickShowMode> QUICK_SHOW_MODE;
+    private static final ModConfigSpec.ConfigValue<String> HIGHLIGHT_COLOR;
 
     public static final ModConfigSpec CLIENT_SPEC;
 
@@ -118,8 +119,10 @@ public final class NeoConfigs {
                 .defineInRange("extraLineSpacing", c.extraLineSpacing, 0, 32);
         CLICK_VIEW_GUI = cb.comment("容器宏显示为可点击入口（false = 图标平铺）")
                 .define("clickViewGui", c.clickViewGui);
-        QUICK_SHOW_MODE = cb.comment("Ctrl+Enter 模式：DIRECT_SEND=直接发送, INSERT_MACRO=插入占位文本")
+        QUICK_SHOW_MODE = cb.comment("快捷发送模式：DIRECT_SEND=Alt+Enter 直接发送, INSERT_MACRO=插入占位文本（未实现，保留）")
                 .defineEnum("quickShowMode", QuickShowMode.DIRECT_SEND);
+        HIGHLIGHT_COLOR = cb.comment("容器 GUI 选中高亮颜色（十六进制 RGB，默认亮绿 39FF14）")
+                .define("highlightColor", "39FF14");
         cb.pop();
         CLIENT_SPEC = cb.build();
     }
@@ -183,6 +186,7 @@ public final class NeoConfigs {
         c.extraLineSpacing = EXTRA_LINE_SPACING.get();
         c.clickViewGui = CLICK_VIEW_GUI.get();
         c.quickShowMode = QUICK_SHOW_MODE.get().name();
+        c.highlightColor = HIGHLIGHT_COLOR.get();
         c.sanitize();
     }
 

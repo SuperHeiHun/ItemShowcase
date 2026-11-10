@@ -15,13 +15,15 @@ import net.minecraftforge.fml.common.Mod;
 import org.lwjgl.glfw.GLFW;
 
 /**
- * Ctrl+Enter 快捷展示（客户端）。
+ * Alt+Enter 快捷展示（客户端）。
  *
  * <p>规则：</p>
  * <ul>
- *   <li>快捷键默认为 Enter，触发时必须按住 Ctrl（即默认组合 Ctrl+Enter），
+ *   <li>快捷键默认为 Enter，触发时必须按住 Alt（即默认组合 Alt+Enter），
  *       支持 Minecraft 控制界面重新绑定。</li>
- *   <li>仅在容器界面（物品栏等）且鼠标悬停有效槽位时触发。</li>
+ *   <li>仅在容器界面（物品栏等）且鼠标悬停自己背包的有效槽位时触发；
+ *       拿着物品（光标有物品）时不触发。</li>
+ *   <li>悬停槽位同时由 {@link SelectionHighlighter} 绘制可配置颜色的选中框。</li>
  *   <li>客户端只发送“菜单 ID + 槽位 ID”，物品数据由服务端重新读取。</li>
  *   <li>不拦截原版按键行为（事件返回默认结果）。</li>
  * </ul>
@@ -57,15 +59,24 @@ public final class ClientQuickShow {
             if (!(event.getScreen() instanceof AbstractContainerScreen<?> containerScreen)) {
                 return;
             }
-            // 默认 Ctrl+Enter；支持在 Controls 中重新绑定
-            if (!net.minecraft.client.gui.screens.Screen.hasControlDown()) {
+            // Alt+Enter 触发（可在 Controls 中重新绑定主键；修饰键固定为 Alt）
+            if (!net.minecraft.client.gui.screens.Screen.hasAltDown()) {
                 return;
             }
             if (!QUICK_SHOW.matches(event.getKeyCode(), event.getScanCode())) {
                 return;
             }
+            // 拿着物品（光标有物品）时不触发：与选中高亮的取消条件一致
+            if (!containerScreen.getMenu().getCarried().isEmpty()) {
+                return;
+            }
             Slot hovered = containerScreen.getSlotUnderMouse();
             if (hovered == null || !hovered.hasItem()) {
+                return;
+            }
+            // 只允许自己背包里的槽位（与服务端校验一致，避免必然被拒的请求）
+            Minecraft minecraft = Minecraft.getInstance();
+            if (minecraft.player == null || hovered.container != minecraft.player.getInventory()) {
                 return;
             }
             // 客户端只提交菜单 ID + 槽位 ID；物品由服务端校验后重新读取
@@ -74,9 +85,14 @@ public final class ClientQuickShow {
             ShowcaseNetwork.CHANNEL.sendToServer(
                     new com.heihun.Itemshowcase.forge1201.network.packet.SelectedItemRequestPacket(
                             containerId, slotIndex));
-            Minecraft.getInstance().getSoundManager()
+            minecraft.getSoundManager()
                     .play(net.minecraft.client.resources.sounds.SimpleSoundInstance.forUI(
                             net.minecraft.sounds.SoundEvents.EXPERIENCE_ORB_PICKUP, 1.0F));
+        }
+
+        @SubscribeEvent
+        public static void onRender(ScreenEvent.Render.Post event) {
+            SelectionHighlighter.render(event);
         }
     }
 }

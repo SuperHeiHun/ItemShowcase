@@ -16,7 +16,7 @@ import net.neoforged.neoforge.common.NeoForge;
 import org.lwjgl.glfw.GLFW;
 
 /**
- * 客户端初始化（NeoForge 1.21.1）：按键注册、进入世界握手、Ctrl+Enter 快捷展示。
+ * 客户端初始化（NeoForge 1.21.1）：按键注册、进入世界握手、Alt+Enter 快捷展示、容器选中高亮。
  * mod bus 事件用构造器 addListener 注册；游戏事件经 NeoForge.EVENT_BUS。
  */
 public final class ClientInit {
@@ -43,7 +43,9 @@ public final class ClientInit {
         event.register(QUICK_SHOW);
     }
 
-    /** 游戏事件总线处理器（仅客户端 dist 注册）。 */
+    /**
+     * 游戏事件总线处理器（仅客户端 dist 注册）。
+     */
     public static final class GameEvents {
 
         @SubscribeEvent
@@ -57,15 +59,23 @@ public final class ClientInit {
             if (!(event.getScreen() instanceof AbstractContainerScreen<?> containerScreen)) {
                 return;
             }
-            // 默认 Ctrl+Enter；支持在 Controls 中重新绑定
-            if (!net.minecraft.client.gui.screens.Screen.hasControlDown()) {
+            // Alt+Enter 触发（可在 Controls 中重新绑定主键；修饰键固定为 Alt）
+            if (!net.minecraft.client.gui.screens.Screen.hasAltDown()) {
                 return;
             }
             if (!QUICK_SHOW.matches(event.getKeyCode(), event.getScanCode())) {
                 return;
             }
+            // 拿着物品（光标有物品）时不触发：与选中高亮的取消条件一致
+            if (!containerScreen.getMenu().getCarried().isEmpty()) {
+                return;
+            }
             Slot hovered = containerScreen.getSlotUnderMouse();
             if (hovered == null || !hovered.hasItem()) {
+                return;
+            }
+            // 只允许自己背包里的槽位（与服务端校验一致，避免必然被拒的请求）
+            if (hovered.container != Minecraft.getInstance().player.getInventory()) {
                 return;
             }
             // 客户端只提交菜单 ID + 槽位 ID；物品由服务端校验后重新读取
@@ -75,6 +85,11 @@ public final class ClientInit {
                     .play(net.minecraft.client.resources.sounds.SimpleSoundInstance.forUI(
                             net.minecraft.sounds.SoundEvents.EXPERIENCE_ORB_PICKUP, 1.0F));
             NeoNetwork.sendToServer(new SelectedItemRequestPayload(containerId, slotIndex));
+        }
+
+        @SubscribeEvent
+        public static void onRender(ScreenEvent.Render.Post event) {
+            SelectionHighlighter.render(event);
         }
     }
 }
