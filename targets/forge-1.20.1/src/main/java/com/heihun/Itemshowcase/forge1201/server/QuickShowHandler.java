@@ -22,7 +22,11 @@ public final class QuickShowHandler {
     private QuickShowHandler() {
     }
 
-    public static void handleRequest(ServerPlayer player, int containerId, int slotIndex) {
+    /**
+     * 批量处理：Alt+Enter 发送的全部选中槽位。
+     * 每个槽位独立校验（菜单一致性 + 槽位归属），有效物品合并为一条消息广播。
+     */
+    public static void handleRequest(ServerPlayer player, int containerId, java.util.List<Integer> slotIndices) {
         ItemShowcaseConfig.Server config = ShowcaseServices.serverConfig();
         if (!config.allowCtrlEnterShowcase) {
             BroadcastService.notice(player, "itemshowcase.chat.quick_show_disabled");
@@ -34,35 +38,44 @@ public final class QuickShowHandler {
         if (menu == null || menu.containerId != containerId) {
             return;
         }
-        // 2. 槽位索引合法
-        if (slotIndex < 0 || slotIndex >= menu.slots.size()) {
+        if (slotIndices == null || slotIndices.isEmpty()) {
             return;
         }
-        Slot slot = menu.slots.get(slotIndex);
-        // 3. 槽位必须属于玩家自己的库存（背包/快捷栏/盔甲/副手），
-        //    不允许通过该快捷键读取容器中其他玩家或容器的物品
-        if (slot.container != player.getInventory()) {
+        if (slotIndices.size() > com.heihun.Itemshowcase.forge1201.network.packet.SelectedItemRequestPacket.MAX_SLOTS) {
             return;
         }
-        // 4. 频率限制
+        // 2. 频率限制（整批一次）
         if (!ShowcaseServices.rateLimiter().tryAcquire(player.getUUID())) {
             BroadcastService.notice(player, "itemshowcase.chat.rate_limited");
             return;
         }
-        // 5. 从服务端重新获取真实物品（不信任客户端）
-        ItemStack stack = slot.getItem();
-        if (stack.isEmpty()) {
+        // 3. 逐槽位校验并从服务端重新读取真实物品（不信任客户端）
+        java.util.List<com.heihun.Itemshowcase.core.spi.SlotItem> slots = new java.util.ArrayList<>();
+        for (int slotIndex : slotIndices) {
+            if (slotIndex < 0 || slotIndex >= menu.slots.size()) {
+                continue;
+            }
+            Slot slot = menu.slots.get(slotIndex);
+            // 槽位必须属于玩家自己的库存（背包/快捷栏/盔甲/副手），
+            // 不允许通过该快捷键读取容器中其他玩家或容器的物品
+            if (slot.container != player.getInventory()) {
+                continue;
+            }
+            ItemStack stack = slot.getItem();
+            if (stack.isEmpty()) {
+                continue;
+            }
+            // 来源按库存区域判定
+            com.heihun.Itemshowcase.core.model.SourceKind source = sourceForContainerSlot(slot.getContainerSlot());
+            slots.add(new com.heihun.Itemshowcase.core.spi.SlotItem(
+                    new ForgeDataViews.ForgeItemStackView(stack), slot.getContainerSlot(), source));
+        }
+        if (slots.isEmpty()) {
             return;
         }
 
-        // 6. 构建单物品展示消息（来源按库存区域判定）
-        com.heihun.Itemshowcase.core.model.SourceKind source = sourceForContainerSlot(slot.getContainerSlot());
-        com.heihun.Itemshowcase.core.spi.SlotItem slotItem = new com.heihun.Itemshowcase.core.spi.SlotItem(
-                new ForgeDataViews.ForgeItemStackView(stack), slot.getContainerSlot(), source);
-        java.util.List<com.heihun.Itemshowcase.core.spi.SlotItem> handOnly =
-                java.util.List.of(slotItem);
-
-        ShowcaseMessage message = buildSingleItemMessage(player, handOnly);
+        // 4. 构建展示消息（单物品或多物品共用 [inv] 管线，预算 maxItemsPerMessage 把关）
+        ShowcaseMessage message = buildSingleItemMessage(player, slots);
         BroadcastService.broadcast(player.server, message);
     }
 

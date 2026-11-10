@@ -4,44 +4,55 @@ import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraftforge.network.NetworkEvent;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.function.Supplier;
 
 /**
- * C2S：Ctrl+Enter 快捷展示请求。
+ * C2S：Alt+Enter 快捷展示请求（选中槽位批量，协议 v2）。
  *
- * <p>客户端只提交“打开的菜单 ID + 槽位 ID”，不提交任何 ItemStack 数据。
- * 服务端必须校验：</p>
- * <ol>
- *   <li>玩家当前确实打开了该 ID 的菜单（防伪造）。</li>
- *   <li>槽位属于玩家自己的库存（背包/快捷栏/盔甲/副手），不允许读取容器其他物品。</li>
- *   <li>从服务端重新获取该槽位 ItemStack（不允许相信客户端提交的物品数据）。</li>
- * </ol>
+ * <p>线格式：containerId(V) + count(V) + slotIndex(V)×count。
+ * 客户端只提交“打开的菜单 ID + 若干槽位 ID”，不提交任何 ItemStack 数据。
+ * 服务端必须校验：菜单一致性、每个槽位属于玩家自己的库存，
+ * 然后从服务端重新获取真实 ItemStack（不信任客户端提交的数据）。</p>
  */
 public final class SelectedItemRequestPacket {
 
-    private final int containerId;
-    private final int slotIndex;
+    /** 批量上限（防恶意大包；展示预算另有 maxItemsPerMessage 把关）。 */
+    public static final int MAX_SLOTS = 512;
 
-    public SelectedItemRequestPacket(int containerId, int slotIndex) {
+    private final int containerId;
+    private final List<Integer> slotIndices;
+
+    public SelectedItemRequestPacket(int containerId, List<Integer> slotIndices) {
         this.containerId = containerId;
-        this.slotIndex = slotIndex;
+        this.slotIndices = List.copyOf(slotIndices);
     }
 
     public static void encode(SelectedItemRequestPacket packet, FriendlyByteBuf buf) {
         buf.writeVarInt(packet.containerId);
-        buf.writeVarInt(packet.slotIndex);
+        buf.writeVarInt(packet.slotIndices.size());
+        for (int index : packet.slotIndices) {
+            buf.writeVarInt(index);
+        }
     }
 
     public static SelectedItemRequestPacket decode(FriendlyByteBuf buf) {
-        return new SelectedItemRequestPacket(buf.readVarInt(), buf.readVarInt());
+        int containerId = buf.readVarInt();
+        int count = Math.min(buf.readVarInt(), MAX_SLOTS);
+        List<Integer> indices = new ArrayList<>(count);
+        for (int i = 0; i < count; i++) {
+            indices.add(buf.readVarInt());
+        }
+        return new SelectedItemRequestPacket(containerId, indices);
     }
 
     public int containerId() {
         return containerId;
     }
 
-    public int slotIndex() {
-        return slotIndex;
+    public List<Integer> slotIndices() {
+        return slotIndices;
     }
 
     public static void handle(SelectedItemRequestPacket packet, Supplier<NetworkEvent.Context> ctx) {
@@ -50,6 +61,6 @@ public final class SelectedItemRequestPacket {
             return;
         }
         // 交给服务端快捷展示逻辑做完整校验
-        com.heihun.Itemshowcase.forge1201.server.QuickShowHandler.handleRequest(sender, packet.containerId, packet.slotIndex);
+        com.heihun.Itemshowcase.forge1201.server.QuickShowHandler.handleRequest(sender, packet.containerId, packet.slotIndices());
     }
 }

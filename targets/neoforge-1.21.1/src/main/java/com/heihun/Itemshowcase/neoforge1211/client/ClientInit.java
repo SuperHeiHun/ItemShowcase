@@ -21,7 +21,7 @@ import org.lwjgl.glfw.GLFW;
  */
 public final class ClientInit {
 
-    /** 快捷键：默认 Enter + Ctrl（即默认组合 Ctrl+Enter），可在 Controls 中重新绑定。 */
+    /** 快捷键：默认 Enter。Enter = 选中/取消悬停槽位（可多选）；Alt+Enter = 发送全部选中（可重新绑定主键）。 */
     public static final KeyMapping QUICK_SHOW = new KeyMapping(
             "key.itemshowcase.quick_show",
             InputConstants.Type.KEYSYM,
@@ -59,32 +59,42 @@ public final class ClientInit {
             if (!(event.getScreen() instanceof AbstractContainerScreen<?> containerScreen)) {
                 return;
             }
-            // Alt+Enter 触发（可在 Controls 中重新绑定主键；修饰键固定为 Alt）
-            if (!net.minecraft.client.gui.screens.Screen.hasAltDown()) {
-                return;
-            }
             if (!QUICK_SHOW.matches(event.getKeyCode(), event.getScanCode())) {
                 return;
             }
-            // 拿着物品（光标有物品）时不触发：与选中高亮的取消条件一致
+            // 拿着物品（光标有物品）时：清空选中且不触发（取消条件）
             if (!containerScreen.getMenu().getCarried().isEmpty()) {
+                ContainerSelection.clear();
                 return;
             }
+            boolean altDown = net.minecraft.client.gui.screens.Screen.hasAltDown();
             Slot hovered = containerScreen.getSlotUnderMouse();
-            if (hovered == null || !hovered.hasItem()) {
+
+            if (altDown) {
+                // Alt+Enter：发送全部选中槽位；无选中时回退为发送悬停单槽
+                java.util.List<Integer> toSend = ContainerSelection.selectedIndices();
+                boolean fallbackHover = false;
+                if (toSend.isEmpty()) {
+                    if (hovered == null || !hovered.hasItem()
+                            || hovered.container != Minecraft.getInstance().player.getInventory()) {
+                        return;
+                    }
+                    toSend = java.util.List.of(hovered.index);
+                    fallbackHover = true;
+                }
+                Minecraft.getInstance().getSoundManager()
+                        .play(net.minecraft.client.resources.sounds.SimpleSoundInstance.forUI(
+                                net.minecraft.sounds.SoundEvents.EXPERIENCE_ORB_PICKUP, 1.0F));
+                NeoNetwork.sendToServer(new SelectedItemRequestPayload(
+                        containerScreen.getMenu().containerId, toSend));
+                if (!fallbackHover) {
+                    ContainerSelection.clearAfterSend();
+                }
                 return;
             }
-            // 只允许自己背包里的槽位（与服务端校验一致，避免必然被拒的请求）
-            if (hovered.container != Minecraft.getInstance().player.getInventory()) {
-                return;
-            }
-            // 客户端只提交菜单 ID + 槽位 ID；物品由服务端校验后重新读取
-            int containerId = containerScreen.getMenu().containerId;
-            int slotIndex = hovered.index;
-            Minecraft.getInstance().getSoundManager()
-                    .play(net.minecraft.client.resources.sounds.SimpleSoundInstance.forUI(
-                            net.minecraft.sounds.SoundEvents.EXPERIENCE_ORB_PICKUP, 1.0F));
-            NeoNetwork.sendToServer(new SelectedItemRequestPayload(containerId, slotIndex));
+
+            // Enter（无修饰键）：切换悬停槽位的选中状态（高亮）
+            ContainerSelection.toggle(containerScreen, hovered);
         }
 
         @SubscribeEvent

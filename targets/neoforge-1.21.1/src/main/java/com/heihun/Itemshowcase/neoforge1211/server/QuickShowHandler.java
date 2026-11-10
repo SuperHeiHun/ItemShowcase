@@ -25,7 +25,11 @@ public final class QuickShowHandler {
     private QuickShowHandler() {
     }
 
-    public static void handleRequest(ServerPlayer player, int containerId, int slotIndex) {
+    /**
+     * 批量处理：Alt+Enter 发送的全部选中槽位。
+     * 每个槽位独立校验（菜单一致性 + 槽位归属），有效物品合并为一条消息广播。
+     */
+    public static void handleRequest(ServerPlayer player, int containerId, java.util.List<Integer> slotIndices) {
         ItemShowcaseConfig.Server config = ShowcaseServices.serverConfig();
         if (!config.allowCtrlEnterShowcase) {
             BroadcastService.notice(player, "itemshowcase.chat.quick_show_disabled");
@@ -36,33 +40,43 @@ public final class QuickShowHandler {
         if (menu == null || menu.containerId != containerId) {
             return;
         }
-        // 2. 槽位索引合法
-        if (slotIndex < 0 || slotIndex >= menu.slots.size()) {
+        if (slotIndices == null || slotIndices.isEmpty()) {
             return;
         }
-        Slot slot = menu.slots.get(slotIndex);
-        // 3. 槽位必须属于玩家自己的库存（不允许读取容器中其他物品）
-        if (slot.container != player.getInventory()) {
+        if (slotIndices.size() > com.heihun.Itemshowcase.neoforge1211.network.SelectedItemRequestPayload.MAX_SLOTS) {
             return;
         }
-        // 4. 频率限制
+        // 2. 频率限制（整批一次）
         if (!ShowcaseServices.rateLimiter().tryAcquire(player.getUUID())) {
             BroadcastService.notice(player, "itemshowcase.chat.rate_limited");
             return;
         }
-        // 5. 从服务端重新获取真实物品（不信任客户端）
-        ItemStack stack = slot.getItem();
-        if (stack.isEmpty()) {
+        // 3. 逐槽位校验并从服务端重新读取真实物品（不信任客户端）
+        List<SlotItem> slots = new java.util.ArrayList<>();
+        for (int slotIndex : slotIndices) {
+            if (slotIndex < 0 || slotIndex >= menu.slots.size()) {
+                continue;
+            }
+            Slot slot = menu.slots.get(slotIndex);
+            if (slot.container != player.getInventory()) {
+                continue;
+            }
+            ItemStack stack = slot.getItem();
+            if (stack.isEmpty()) {
+                continue;
+            }
+            com.heihun.Itemshowcase.core.model.SourceKind source =
+                    sourceForContainerSlot(slot.getContainerSlot());
+            slots.add(new SlotItem(
+                    new NeoDataViews.NeoItemStackView(stack, player.registryAccess()),
+                    slot.getContainerSlot(), source));
+        }
+        if (slots.isEmpty()) {
             return;
         }
 
-        // 6. 构建单物品展示消息
-        com.heihun.Itemshowcase.core.model.SourceKind source =
-                sourceForContainerSlot(slot.getContainerSlot());
-        SlotItem slotItem = new SlotItem(
-                new NeoDataViews.NeoItemStackView(stack, player.registryAccess()),
-                slot.getContainerSlot(), source);
-        ShowcaseMessage message = buildSingleItemMessage(player, List.of(slotItem));
+        // 4. 构建展示消息（单物品或多物品共用 [inv] 管线，预算 maxItemsPerMessage 把关）
+        ShowcaseMessage message = buildSingleItemMessage(player, slots);
         BroadcastService.broadcast(player.level().getServer(), message);
     }
 

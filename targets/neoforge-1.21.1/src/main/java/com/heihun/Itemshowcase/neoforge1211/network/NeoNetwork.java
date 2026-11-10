@@ -21,7 +21,7 @@ import net.neoforged.neoforge.network.registration.PayloadRegistrar;
  */
 public final class NeoNetwork {
 
-    private static final String PROTOCOL_VERSION = "1";
+    private static final String PROTOCOL_VERSION = "2";
 
     private NeoNetwork() {
     }
@@ -51,7 +51,7 @@ public final class NeoNetwork {
         PacketDistributor.sendToServer(ClientHandshakePayload.INSTANCE);
     }
 
-    /** 客户端：发送 Ctrl+Enter 槽位请求。 */
+    /** 客户端：发送 Alt+Enter 选中槽位批量请求。 */
     public static void sendToServer(SelectedItemRequestPayload payload) {
         PacketDistributor.sendToServer(payload);
     }
